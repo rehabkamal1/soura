@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Soura — حوّل صورك إلى مستندات ذكية</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- jsPDF CDN for client-side PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-200">
+
+  <!-- Mobile Frame Container (Responsive: mobile-sized on desktop, 100% on phone) -->
+  <div class="w-full max-w-md mx-auto min-h-screen flex flex-col bg-slate-900 shadow-2xl relative border-x border-slate-800/80">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div id="header-back-btn" class="hidden">
+          <button onclick="switchTab('home')" class="p-2 -mr-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div id="header-logo-icon" class="w-10 h-10 rounded-2xl overflow-hidden shadow-md shadow-blue-500/25 ring-1 ring-white/20">
+          <img src="/logo.png" alt="Soura Logo" class="w-full h-full object-cover">
+        </div>
+
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 id="header-title" class="font-extrabold text-lg text-white">Soura</h1>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+              AI عربي 🇪🇬
+            </span>
+          </div>
+          <p id="header-subtitle" class="text-[11px] text-slate-400">حوّل صورك لمستندات ذكية</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <!-- Install App Button -->
+        <button onclick="openInstallModal()" class="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 transition active:scale-95">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+          <span>تثبيت</span>
+        </button>
+
+        <!-- Dark/Light Mode -->
+        <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition active:scale-95">
+          <i data-lucide="sun" id="theme-icon" class="w-4 h-4 text-amber-400"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 pb-24 overflow-y-auto px-4 py-4 space-y-4">
+
+      <!-- ================= VIEW 1: HOME ================= -->
+      <section id="view-home" class="space-y-4">
+        <!-- Hero Card -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950/60 via-slate-800/80 to-slate-900 border border-emerald-500/30 p-5 shadow-xl">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> مخصص للمنهج والورق المصري
+                </span>
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">مجاني 100%</span>
+              </div>
+              <h2 class="text-xl font-black text-white leading-snug mb-1">
+                مستنداتك الذكية في مكان واحد 📄
+              </h2>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                ارفع صور الملازم، دفاتر التحضير، أو الكشوف الورقية وحوّلها لملفات قابلة للطباعة والتعديل فوراً.
+              </p>
+            </div>
+            <img src="/logo.png" alt="Soura Logo" class="w-16 h-16 rounded-2xl shadow-lg shadow-blue-500/25 object-cover flex-shrink-0 ring-2 ring-white/20">
+          </div>
+
+          <button onclick="openTool('image-to-pdf')" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-98 transition">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>ابدأ برفع الصور الآن</span>
+          </button>
+        </div>
+
+        <!-- 10 Smart Tools Grid -->
+        <div>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h3 class="font-bold text-sm text-slate-200">
+              ماذا تريد أن تفعل اليوم؟
+            </h3>
+            <span class="text-[11px] text-slate-400">أدوات ذكية متخصصة</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Tool 1: Image to PDF -->
+            <button onclick="openTool('image-to-pdf')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition border border-emerald-500/20">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-emerald-300 transition">صورة ← PDF</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">دمج، ترتيب، وفلترة الصور لملف PDF واحد</p>
+              </div>
+            </button>
+
+            <!-- Tool 2: Image to Text (OCR) -->
+            <button onclick="openTool('ocr')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-blue-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition border border-blue-500/20">
+                <i data-lucide="type" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-blue-300 transition">صورة ← نص عربي 🔤</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">قراءة الكتب والملازم بالذكاء الاصطناعي</p>
+              </div>
+            </button>
+
+            <!-- Tool 3: Exam Maker -->
+            <button onclick="openTool('exam-maker')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-purple-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition border border-purple-500/20">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-purple-300 transition">صانع الامتحانات 🔥</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">صورة الأسئلة ← ورقة اختبار جاهزة</p>
+              </div>
+            </button>
+
+            <!-- Tool 4: Clean Doc -->
+            <button onclick="openTool('clean-doc')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-teal-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center group-hover:scale-110 transition border border-teal-500/20">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-teal-300 transition">نظّف الورقة 🧼</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">إزالة الظلال وتبييض الورق للطباعة</p>
+              </div>
+            </button>
+
+            <!-- Tool 5: Table to Excel -->
+            <button onclick="openTool('excel')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-green-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-green-500/10 text-green-400 flex items-center justify-center group-hover:scale-110 transition border border-green-500/20">
+                <i data-lucide="table" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-green-300 transition">كشف ← Excel 📊</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">كشوف الدرجات والغياب إلى جدول</p>
+              </div>
+            </button>
+
+            <!-- Tool 6: Solver -->
+            <button onclick="openTool('solver')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-110 transition border border-amber-500/20">
+                <i data-lucide="brain" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-amber-300 transition">حل الأسئلة والمسائل 💡</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">صورة المسألة ← الحل بالخطوات</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Documents Strip -->
+        <div class="bg-slate-800/40 rounded-2xl p-4 border border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i> آخر المستندات المعالجة
+            </span>
+            <button onclick="switchTab('documents')" class="text-[11px] text-emerald-400 hover:underline">عرض الكل</button>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-800/70 border border-slate-700/50">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center text-xs font-bold">
+                  PDF
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold text-slate-200">ملزمة_العلوم_ترم_ثاني.pdf</h5>
+                  <p class="text-[10px] text-slate-400">12 صفحة • 2.1 MB • منذ ساعتين</p>
+                </div>
+              </div>
+              <button onclick="alert('المستند جاهز للتحميل')" class="p-1.5 rounded-lg bg-slate-700 text-slate-300 hover:text-white">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 2: IMAGE TO PDF STUDIO ================= -->
+      <section id="view-image-to-pdf" class="hidden space-y-4">
+        <div class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-3xl p-6 text-center bg-slate-800/30 transition cursor-pointer" onclick="document.getElementById('file-input').click()">
+          <input type="file" id="file-input" multiple accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="images" class="w-7 h-7"></i>
+          </div>
+          <h4 class="font-bold text-sm text-white mb-1">انقر لاختيار الصور أو التقط بالكاميرا</h4>
+          <p class="text-[11px] text-slate-400">يدعم JPG, PNG, WEBP (يمكنك اختيار حتى 100 صورة)</p>
+        </div>
+
+        <div id="gallery-container" class="space-y-3 hidden">
+          <div class="flex items-center justify-between px-1">
+            <span id="image-count-badge" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              0 صور جاهزة
+            </span>
+            <button onclick="clearImages()" class="text-xs text-red-400 hover:underline">مسح الكل</button>
+          </div>
+
+          <div id="images-grid" class="grid grid-cols-2 gap-3"></div>
+
+          <div class="bg-slate-800/70 rounded-2xl p-4 border border-slate-700/60 space-y-3">
+            <h5 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="sliders" class="w-3.5 h-3.5 text-emerald-400"></i> إعدادات المستند والفلترة
+            </h5>
+
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <button onclick="setFilter('original')" id="filter-btn-original" class="py-2 px-1 rounded-xl bg-emerald-500 text-slate-950 font-bold border border-emerald-400">
+                ألوان أصلية
+              </button>
+              <button onclick="setFilter('bw')" id="filter-btn-bw" class="py-2 px-1 rounded-xl bg-slate-800 text-slate-300 font-semibold border border-slate-700">
+                أبيض وأسود
+              </button>
+              <button onclick="setFilter('high-contrast')" id="filter-btn-high-contrast" class="py-2 px-1 rounded-xl bg-slate-800 text-slate-300 font-semibold border border-slate-700">
+                توضيح خط
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-300 pt-1 border-t border-slate-700/60">
+              <span>هوامش الصفحة القياسية (A4):</span>
+              <select id="margin-select" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200">
+                <option value="none">بدون هوامش</option>
+                <option value="small" selected>هوامش عادية (افتراضي)</option>
+                <option value="wide">هامش عريض للتخريم</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="generatePDF()" id="generate-pdf-btn" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/25 active:scale-98 transition">
+            <i data-lucide="file-check" class="w-5 h-5"></i>
+            <span>تنزيل ملف الـ PDF الآن (مجاناً)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: ARABIC OCR (AI POWERED) ================= -->
+      <section id="view-ocr" class="hidden space-y-4">
+        <!-- API Key Status Banner -->
+        <div id="ocr-api-banner" class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="key" class="w-4 h-4 text-amber-400"></i>
+            <span>مفتاح Gemini API غير مضاف بعد (يمكنك التجربة بنموذج أو إضافة المفتاح).</span>
+          </div>
+          <button onclick="switchTab('settings')" class="px-2.5 py-1 rounded-xl bg-amber-500/20 font-bold">إضافة</button>
+        </div>
+
+        <div class="border-2 border-dashed border-slate-700 hover:border-blue-500/60 rounded-3xl p-5 text-center bg-slate-800/40 transition cursor-pointer" onclick="document.getElementById('ocr-input-file').click()">
+          <input type="file" id="ocr-input-file" accept="image/*" class="hidden" onchange="handleOcrFileSelect(event)">
+          <div id="ocr-preview-box" class="space-y-2">
+            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto">
+              <i data-lucide="upload" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-bold text-sm text-white">اختر صورة صفحة كتاب أو ملزمة</h4>
+            <p class="text-[11px] text-slate-400">يدعم المذكرات، الكتب المدرسية، والخطوط العربية</p>
+          </div>
+        </div>
+
+        <button onclick="runArabicOcr()" id="run-ocr-btn" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-500 text-white font-bold text-sm shadow-lg shadow-blue-500/20 active:scale-98 transition flex items-center justify-center gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>استخراج وتنسيق النص العربي الآن</span>
+        </button>
+
+        <!-- Extracted Text Result -->
+        <div class="bg-slate-800/60 rounded-3xl p-4 border border-slate-700/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4 text-emerald-400"></i> النص المستخرج (قابل للتعديل):
+            </span>
+            <button onclick="copyOcrText()" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ النص
+            </button>
+          </div>
+
+          <textarea id="ocr-textarea" rows="8" class="w-full bg-slate-950/80 border border-slate-700 rounded-2xl p-3 text-xs leading-relaxed text-slate-200 focus:outline-none focus:border-emerald-500 font-sans" dir="rtl" placeholder="سيظهر النص العربي المنظم هنا..."></textarea>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="downloadAsDocx()" class="py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="download" class="w-4 h-4"></i> تصدير Word (.doc)
+            </button>
+            <button onclick="downloadAsTxt()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-700 transition">
+              <i data-lucide="file" class="w-4 h-4"></i> ملف نصي (.txt)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: EXAM MAKER ================= -->
+      <section id="view-exam-maker" class="hidden space-y-4">
+        <div class="bg-slate-800/60 rounded-3xl p-4 border border-slate-700/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="help-circle" class="w-4 h-4 text-purple-400"></i> بيانات ترويسة ورقة الامتحان:
+            </h4>
+            <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold">جميع المراحل والمواد</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div>
+              <label class="text-slate-400 block mb-1">المادة الدراسية:</label>
+              <select id="exam-subject-select" onchange="handleSubjectSelectChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                <option value="اللغة العربية">اللغة العربية</option>
+                <option value="الرياضيات">الرياضيات</option>
+                <option value="العلوم">العلوم</option>
+                <option value="الدراسات الاجتماعية">الدراسات الاجتماعية</option>
+                <option value="اللغة الإنجليزية">اللغة الإنجليزية</option>
+                <option value="الفيزياء">الفيزياء</option>
+                <option value="الكيمياء">الكيمياء</option>
+                <option value="الأحياء">الأحياء</option>
+                <option value="التاريخ">التاريخ</option>
+                <option value="الجغرافيا">الجغرافيا</option>
+                <option value="التربية الدينية">التربية الدينية</option>
+                <option value="الحاسب الآلي">الحاسب الآلي</option>
+                <option value="custom">مادة أخرى...</option>
+              </select>
+              <input type="text" id="exam-subject-custom" placeholder="اكتب اسم المادة..." class="hidden w-full mt-1.5 bg-slate-900 border border-purple-500/50 rounded-xl px-3 py-1.5 text-slate-200 text-xs">
+            </div>
+
+            <div>
+              <label class="text-slate-400 block mb-1">الصف والمرحلة الدراسية:</label>
+              <select id="exam-grade-select" onchange="handleGradeSelectChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-200">
+                <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+                <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+                <option value="custom">مرحلة جامعية / أخرى...</option>
+              </select>
+              <input type="text" id="exam-grade-custom" placeholder="اكتب الصف أو الفرقة..." class="hidden w-full mt-1.5 bg-slate-900 border border-purple-500/50 rounded-xl px-3 py-1.5 text-slate-200 text-xs">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-700/60">
+            <span class="text-slate-400">زمن الإجابة:</span>
+            <select id="exam-time-select" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200">
+              <option value="ساعة واحدة">ساعة واحدة</option>
+              <option value="ساعتان" selected>ساعتان</option>
+              <option value="ساعتان ونصف">ساعتان ونصف</option>
+              <option value="ثلاث ساعات">ثلاث ساعات</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Quick Sample Buttons -->
+        <div class="bg-purple-950/20 border border-purple-800/30 rounded-2xl p-3 space-y-2">
+          <span class="text-[11px] font-bold text-purple-300 flex items-center gap-1">
+            <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+            <span>نماذج امتحانات جاهزة للتجربة السريعة:</span>
+          </span>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="loadPreviewExamSample('arabic')" class="px-2.5 py-1 rounded-xl bg-slate-800 border border-purple-500/30 text-purple-300 text-[11px] hover:bg-slate-700">📖 لغة عربية</button>
+            <button onclick="loadPreviewExamSample('science')" class="px-2.5 py-1 rounded-xl bg-slate-800 border border-purple-500/30 text-purple-300 text-[11px] hover:bg-slate-700">🔬 علوم</button>
+            <button onclick="loadPreviewExamSample('math')" class="px-2.5 py-1 rounded-xl bg-slate-800 border border-purple-500/30 text-purple-300 text-[11px] hover:bg-slate-700">📐 رياضيات</button>
+            <button onclick="loadPreviewExamSample('social')" class="px-2.5 py-1 rounded-xl bg-slate-800 border border-purple-500/30 text-purple-300 text-[11px] hover:bg-slate-700">🌍 دراسات</button>
+          </div>
+        </div>
+
+        <div class="border-2 border-dashed border-slate-700 hover:border-purple-500/60 rounded-3xl p-5 text-center bg-slate-800/40 transition cursor-pointer" onclick="document.getElementById('exam-photo-input').click()">
+          <input type="file" id="exam-photo-input" accept="image/*" class="hidden" onchange="handleExamFileSelect(event)">
+          <div id="exam-preview-box" class="space-y-1.5">
+            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto">
+              <i data-lucide="upload" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-bold text-xs text-white">التقط أو ارفع صورة صفحة الأسئلة</h4>
+            <p class="text-[11px] text-slate-400">يقوم الذكاء الاصطناعي بتنظيم الأسئلة لورقة اختبار رسمية</p>
+          </div>
+        </div>
+
+        <button onclick="runExamMaker()" id="run-exam-btn" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold text-sm shadow-lg shadow-purple-500/20 active:scale-98 transition flex items-center justify-center gap-2">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>توليد ورقة الامتحان الرسمية 🔥</span>
+        </button>
+
+        <div class="bg-slate-800/60 rounded-3xl p-4 border border-slate-700/60 space-y-3">
+          <span class="font-bold text-xs text-purple-300">معاينة ورقة الامتحان (جاهزة للطباعة):</span>
+          <textarea id="exam-textarea" rows="9" class="w-full bg-slate-950/80 border border-slate-700 rounded-2xl p-3 text-xs leading-relaxed text-slate-200" dir="rtl"></textarea>
+          <button onclick="printOfficialExam()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>طباعة الامتحان / حفظ PDF بمقاس A4</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 5: DOCUMENTS ================= -->
+      <section id="view-documents" class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-xs text-white">المستندات المحفوظة على جهازك</h4>
+            <p class="text-[10px] text-slate-400">تُحفظ تلقائياً في ذاكرة جهازك</p>
+          </div>
+          <button onclick="clearAllPreviewDocs()" class="text-[11px] text-red-400 hover:text-red-300 font-semibold">مسح الكل</button>
+        </div>
+        <div id="preview-documents-list" class="space-y-2.5">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- ================= VIEW 6: SETTINGS ================= -->
+      <section id="view-settings" class="hidden space-y-4">
+        <!-- Gemini API Key Box -->
+        <div class="bg-slate-800/60 rounded-3xl p-4 border border-slate-700/60 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                <i data-lucide="key" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white">مفتاح الذكاء الاصطناعي (Gemini)</h4>
+                <p class="text-[10px] text-slate-400">مجاني 100% لتشغيل قارئ النصوص والامتحانات</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              Free Tier
+            </span>
+          </div>
+
+          <div class="relative">
+            <input type="password" id="gemini-api-input" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-200 font-mono">
+          </div>
+
+          <div class="flex items-center justify-between gap-2">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[11px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold">
+              <span>احصل على مفتاح مجاني في 30 ثانية</span>
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+
+            <button onclick="saveApiKeyFromInput()" class="py-2 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs">
+              حفظ المفتاح
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/60 rounded-3xl p-4 border border-slate-700/60 space-y-3">
+          <h4 class="font-bold text-xs text-white mb-2">تفضيلات التطبيق</h4>
+          <div class="flex items-center justify-between py-1.5 text-xs text-slate-300">
+            <span>الوضع الليلي (Dark Mode)</span>
+            <button onclick="toggleDarkMode()" class="px-3 py-1.5 rounded-xl bg-slate-700 text-white font-bold text-xs">تبديل</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 pb-safe">
+      <div class="max-w-md mx-auto grid grid-cols-4 px-2 py-2">
+        <button onclick="switchTab('home')" id="nav-btn-home" class="flex flex-col items-center justify-center py-1 text-emerald-400 font-bold transition active:scale-95">
+          <div class="p-1 rounded-xl bg-emerald-500/15">
+            <i data-lucide="home" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[11px] mt-0.5">الرئيسية</span>
+        </button>
+
+        <button onclick="switchTab('tools')" id="nav-btn-tools" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition active:scale-95">
+          <div class="p-1 rounded-xl">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[11px] mt-0.5">الأدوات</span>
+        </button>
+
+        <button onclick="switchTab('documents')" id="nav-btn-documents" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition active:scale-95">
+          <div class="p-1 rounded-xl">
+            <i data-lucide="folder-clock" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[11px] mt-0.5">مستنداتي</span>
+        </button>
+
+        <button onclick="switchTab('settings')" id="nav-btn-settings" class="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition active:scale-95">
+          <div class="p-1 rounded-xl">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </div>
+          <span class="text-[11px] mt-0.5">الإعدادات</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- PWA Install Modal -->
+    <div id="install-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm hidden" onclick="closeInstallModal(event)">
+      <div class="w-full max-w-md bg-slate-900 border-t sm:border border-slate-800 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl relative animate-slide-up" onclick="event.stopPropagation()">
+        <button onclick="closeInstallModal()" class="absolute top-4 left-4 p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+        <div class="flex flex-col items-center text-center pt-2">
+          <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-xl shadow-emerald-500/25 mb-4 relative">
+            <i data-lucide="smartphone" class="w-10 h-10 text-white"></i>
+            <span class="absolute -bottom-1 -right-1 bg-slate-900 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/30 font-bold">
+              Soura
+            </span>
+          </div>
+
+          <h3 class="text-xl font-bold text-white mb-1.5">ثبّت تطبيق Soura</h3>
+          <p class="text-xs text-slate-300 max-w-xs mb-5 leading-relaxed">
+            استخدم Soura كتطبيق سريع على هاتفك المحمول للوصول الفوري بدون فتح المتصفح كل مرة!
+          </p>
+
+          <div class="w-full bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 text-right mb-4 space-y-2 text-xs text-slate-300">
+            <p class="font-bold text-emerald-400 mb-1">لمستخدمي آيفون (Safari):</p>
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold">1</span>
+              <span>اضغط على أيقونة المشاركة (Share) في الأسفل</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold">2</span>
+              <span>اختر <strong>«إضافة إلى الشاشة الرئيسية»</strong></span>
+            </div>
+          </div>
+
+          <div class="w-full space-y-2">
+            <button onclick="triggerInstall()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/25 active:scale-98 transition flex items-center justify-center gap-2">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تثبيت التطبيق الآن</span>
+            </button>
+            <button onclick="closeInstallModal()" class="w-full py-2 text-slate-400 hover:text-slate-200 text-xs font-semibold">
+              لاحقاً
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    let uploadedImages = [];
+    let currentFilter = 'original';
+    let deferredPrompt = null;
+    let selectedOcrImage = null;
+    let selectedExamImage = null;
+
+    // Load API Key from localStorage
+    const savedKey = localStorage.getItem('soura_gemini_api_key') || '';
+    if (document.getElementById('gemini-api-input')) {
+      document.getElementById('gemini-api-input').value = savedKey;
+    }
+    checkApiKeyBanner();
+
+    // Document Storage Functions for preview.html
+    const DOCS_KEY = 'soura_saved_documents';
+
+    function getSavedDocsPreview() {
+      try {
+        const data = localStorage.getItem(DOCS_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveUserDocPreview({ name, type, size, pages, content, dataUrl }) {
+      try {
+        const existing = getSavedDocsPreview();
+        const newDoc = {
+          id: 'doc_' + Date.now() + '_' + Math.random().toString(36).substring(5),
+          name: name || `مستند_${Date.now()}`,
+          type: type || 'PDF',
+          size: size || '1.0 MB',
+          pages: pages || 'صفحة واحدة',
+          content: content || '',
+          dataUrl: dataUrl && dataUrl.length < 500000 ? dataUrl : '',
+          time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
+        };
+        const updated = [newDoc, ...existing.slice(0, 49)];
+        localStorage.setItem(DOCS_KEY, JSON.stringify(updated));
+        renderSavedDocsPreview();
+        return newDoc;
+      } catch (e) {
+        console.warn('Storage save error:', e);
+      }
+    }
+
+    function deleteDocPreview(id) {
+      const existing = getSavedDocsPreview();
+      const updated = existing.filter(d => d.id !== id);
+      localStorage.setItem(DOCS_KEY, JSON.stringify(updated));
+      renderSavedDocsPreview();
+    }
+
+    function clearAllPreviewDocs() {
+      if (confirm('هل تريد مسح جميع المستندات المحفوظة من السجل؟')) {
+        localStorage.removeItem(DOCS_KEY);
+        renderSavedDocsPreview();
+      }
+    }
+
+    function downloadDataUri(dataUri, filename) {
+      const a = document.createElement('a');
+      a.href = dataUri;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch (e) {}
+      }, 500);
+    }
+
+    function downloadDocPreview(id) {
+      const existing = getSavedDocsPreview();
+      const doc = existing.find(d => d.id === id);
+      if (!doc) return;
+
+      if (doc.dataUrl) {
+        downloadDataUri(doc.dataUrl, doc.name);
+      } else if (doc.content) {
+        const isDoc = doc.name.endsWith('.doc');
+        const mime = isDoc ? 'application/msword' : 'text/plain;charset=utf-8';
+        const blob = new Blob(['\ufeff', doc.content], { type: mime });
+        const reader = new FileReader();
+        reader.onload = () => downloadDataUri(reader.result, doc.name);
+        reader.readAsDataURL(blob);
+      } else {
+        alert('المستند مسجل في السجل.');
+      }
+    }
+
+    function renderSavedDocsPreview() {
+      const container = document.getElementById('preview-documents-list');
+      if (!container) return;
+
+      const docs = getSavedDocsPreview();
+      if (!docs.length) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-xs space-y-2">
+            <p>لا توجد مستندات محفوظة بعد.</p>
+            <p class="text-[11px] text-slate-500">أي ملف تقوم بإنشائه سيظهر هنا تلقائياً ويمكنك تنزيله في أي وقت!</p>
+          </div>
+        `;
+        initIcons();
+        return;
+      }
+
+      container.innerHTML = docs.map(d => `
+        <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 ${
+              d.type === 'PDF' ? 'bg-red-500/10 text-red-400' : (d.type === 'Exam' ? 'bg-purple-500/10 text-purple-400' : 'bg-emerald-500/10 text-emerald-400')
+            }">
+              ${d.type}
+            </div>
+            <div class="min-w-0">
+              <h5 class="text-xs font-bold text-slate-200 truncate">${d.name}</h5>
+              <p class="text-[10px] text-slate-400">${d.pages} • ${d.size} • ${d.time}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button onclick="downloadDocPreview('${d.id}')" class="p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200" title="تنزيل">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteDocPreview('${d.id}')" class="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400" title="حذف">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      initIcons();
+    }
+
+    function checkApiKeyBanner() {
+      const banner = document.getElementById('ocr-api-banner');
+      if (banner) {
+        if (localStorage.getItem('soura_gemini_api_key') || DEFAULT_KEY) {
+          banner.classList.add('hidden');
+        } else {
+          banner.classList.remove('hidden');
+        }
+      }
+    }
+
+    function saveApiKeyFromInput() {
+      const key = document.getElementById('gemini-api-input').value.trim();
+      if (key) {
+        localStorage.setItem('soura_gemini_api_key', key);
+        alert('✓ تم حفظ مفتاح Gemini API بنجاح!');
+      } else {
+        localStorage.removeItem('soura_gemini_api_key');
+        alert('تم مسح المفتاح.');
+      }
+      checkApiKeyBanner();
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function initIcons() {
+      lucide.createIcons();
+    }
+    initIcons();
+
+    function switchTab(tabId) {
+      const views = ['home', 'image-to-pdf', 'ocr', 'exam-maker', 'documents', 'settings'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+      });
+
+      const activeView = (tabId === 'tools') ? 'image-to-pdf' : tabId;
+      const targetEl = document.getElementById('view-' + activeView);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      ['home', 'tools', 'documents', 'settings'].forEach(b => {
+        const btn = document.getElementById('nav-btn-' + b);
+        if (btn) {
+          if (b === tabId) {
+            btn.className = 'flex flex-col items-center justify-center py-1 text-emerald-400 font-bold transition active:scale-95';
+            btn.querySelector('div').className = 'p-1 rounded-xl bg-emerald-500/15';
+          } else {
+            btn.className = 'flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 transition active:scale-95';
+            btn.querySelector('div').className = 'p-1 rounded-xl';
+          }
+        }
+      });
+
+      const backBtn = document.getElementById('header-back-btn');
+      const logoIcon = document.getElementById('header-logo-icon');
+      const title = document.getElementById('header-title');
+      const subtitle = document.getElementById('header-subtitle');
+
+      if (tabId === 'home') {
+        backBtn.classList.add('hidden');
+        logoIcon.classList.remove('hidden');
+        title.innerText = 'Soura';
+        subtitle.innerText = 'حوّل صورك لمستندات ذكية';
+      } else {
+        backBtn.classList.remove('hidden');
+        logoIcon.classList.add('hidden');
+        if (tabId === 'image-to-pdf' || tabId === 'tools') {
+          title.innerText = 'صورة إلى PDF';
+          subtitle.innerText = 'ترتيب وفلترة الصور';
+        } else if (tabId === 'ocr') {
+          title.innerText = 'استخراج النصوص (OCR)';
+          subtitle.innerText = 'قراءة عربية ذكية';
+        } else if (tabId === 'exam-maker') {
+          title.innerText = 'صانع الامتحانات';
+          subtitle.innerText = 'تنسيق الأسئلة للطباعة';
+        } else if (tabId === 'documents') {
+          title.innerText = 'مستنداتي';
+          subtitle.innerText = 'الملفات المحفوظة محلياً';
+          renderSavedDocsPreview();
+        } else if (tabId === 'settings') {
+          title.innerText = 'الإعدادات';
+          subtitle.innerText = 'المظهر ومفتاح الذكاء الاصطناعي';
+        }
+      }
+      initIcons();
+    }
+
+    function openTool(toolName) {
+      if (toolName === 'image-to-pdf') switchTab('image-to-pdf');
+      else if (toolName === 'ocr') switchTab('ocr');
+      else if (toolName === 'exam-maker') switchTab('exam-maker');
+      else if (toolName === 'clean-doc') {
+        switchTab('image-to-pdf');
+        setFilter('high-contrast');
+      } else {
+        switchTab(toolName);
+      }
+    }
+
+    // Call Gemini API directly with multi-model fallback (Gemini 3.7 / 3.6 / 3.5)
+    async function callGemini(base64Image, prompt) {
+      const apiKey = localStorage.getItem('soura_gemini_api_key') || '';
+      if (!apiKey) {
+        throw new Error('NO_API_KEY');
+      }
+
+      const base64Data = base64Image.split(',')[1];
+      const mimeType = base64Image.substring(base64Image.indexOf(':') + 1, base64Image.indexOf(';'));
+
+      const models = [
+        'gemini-3.7-flash',
+        'gemini-3.6-flash',
+        'gemini-3.5-flash',
+        'gemini-3.8-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-flash-lite-latest'
+      ];
+      let lastErr = null;
+
+      for (const m of models) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: mimeType, data: base64Data } }
+                ]
+              }],
+              generationConfig: { temperature: 0.2 }
+            })
+          });
+
+          if (res.ok) {
+            const json = await res.json();
+            const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) return text;
+          }
+
+          const errJson = await res.json().catch(() => ({}));
+          lastErr = errJson?.error?.message || `خطأ ${res.status}`;
+          if (res.status !== 404 && res.status !== 400) break;
+        } catch (e) {
+          lastErr = e.message;
+        }
+      }
+
+      throw new Error(lastErr || 'خطأ في الاتصال بالذكاء الاصطناعي');
+    }
+
+    // OCR Logic
+    function handleOcrFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        selectedOcrImage = event.target.result;
+        document.getElementById('ocr-preview-box').innerHTML = `
+          <img src="${selectedOcrImage}" class="max-h-40 rounded-xl mx-auto object-contain" />
+          <p class="text-xs text-emerald-400 font-bold">تم اختيار الصورة بنجاح</p>
+        `;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function runArabicOcr() {
+      const btn = document.getElementById('run-ocr-btn');
+      const originalText = btn.innerHTML;
+
+      if (!selectedOcrImage) {
+        // Load demo sample if no image
+        document.getElementById('ocr-textarea').value = `الوحدة الأولى: أسس ومفاهيم
+الدرس الأول: الحضارة والتاريخ - الصف الأول الثانوي
+
+أولاً: مفهوم الحضارة:
+هي ثمرة أي مجهود يقوم به الإنسان نتيجة تفاعله مع البيئة لتحسين ظروف حياته على وجه الأرض ماديًا أو معنويًا لتعمير الكون الذي يعيش فيه.
+
+ثانياً: غاية الحضارة:
+- تعمير الأرض (وهو من أهم مقاصد خلق الإنسان).
+- تبادل التراث الإنساني عبر العصور دون تعصب أو انعزال.`;
+        alert('💡 تم عرض نص تجريبي لصفحة كتاب مدرسي. يمكنك الآن تجربة تعديله ونسخه أو تصديره لـ Word.');
+        return;
+      }
+
+      btn.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> جارٍ قراءة النص العربي بالذكاء الاصطناعي...';
+      btn.disabled = true;
+
+      try {
+        const prompt = `أنت خبير OCR فائق الدقة متخصص في اللغة العربية والكتب المدرسية المصرية. اقرأ جميع النصوص في الصورة، وحافظ على الفقرات والعناوين الرئيسية والفرعية وأرقام الأسئلة، وأخرج النص فقط بنظافة مباشرة.`;
+        const result = await callGemini(selectedOcrImage, prompt);
+        document.getElementById('ocr-textarea').value = result;
+      } catch (err) {
+        if (err.message === 'NO_API_KEY') {
+          alert('يرجى إضافة مفتاح Gemini API المجاني في الإعدادات لتفعيل القراءة الحقيقية، أو استخدم النموذج التوضيحي.');
+          switchTab('settings');
+        } else {
+          alert('حدث خطأ: ' + err.message);
+        }
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        initIcons();
+      }
+    }
+
+    function copyOcrText() {
+      const text = document.getElementById('ocr-textarea').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+      alert('✓ تم نسخ النص إلى الحافظة!');
+    }
+
+    function downloadAsTxt() {
+      const text = document.getElementById('ocr-textarea').value;
+      if (!text) return;
+      const fileName = `نص_مستخرج_${Date.now()}.txt`;
+      saveUserDocPreview({
+        name: fileName,
+        type: 'Text',
+        size: `${Math.max(1, Math.round(text.length / 1024))} KB`,
+        pages: 'نص مستخرج OCR',
+        content: text
+      });
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const reader = new FileReader();
+      reader.onload = () => downloadDataUri(reader.result, fileName);
+      reader.readAsDataURL(blob);
+    }
+
+    function downloadAsDocx() {
+      const text = document.getElementById('ocr-textarea').value;
+      if (!text) return;
+      const fileName = `مستند_وورد_${Date.now()}.doc`;
+      const html = `<html dir="rtl"><head><meta charset="utf-8"></head><body style="direction:rtl;text-align:right;font-family:Arial;">${text.replace(/\n/g, '<br>')}</body></html>`;
+      saveUserDocPreview({
+        name: fileName,
+        type: 'Text',
+        size: `${Math.max(1, Math.round(text.length / 1024))} KB`,
+        pages: 'مستند وورد Word',
+        content: html
+      });
+      const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+      const reader = new FileReader();
+      reader.onload = () => downloadDataUri(reader.result, fileName);
+      reader.readAsDataURL(blob);
+    }
+
+    // Exam Maker Logic
+    function handleSubjectSelectChange() {
+      const select = document.getElementById('exam-subject-select');
+      const custom = document.getElementById('exam-subject-custom');
+      if (select.value === 'custom') {
+        custom.classList.remove('hidden');
+        custom.focus();
+      } else {
+        custom.classList.add('hidden');
+      }
+    }
+
+    function handleGradeSelectChange() {
+      const select = document.getElementById('exam-grade-select');
+      const custom = document.getElementById('exam-grade-custom');
+      if (select.value === 'custom') {
+        custom.classList.remove('hidden');
+        custom.focus();
+      } else {
+        custom.classList.add('hidden');
+      }
+    }
+
+    function getSelectedExamSubject() {
+      const select = document.getElementById('exam-subject-select');
+      const custom = document.getElementById('exam-subject-custom');
+      if (select && select.value === 'custom') {
+        return custom.value.trim() || 'مادة دراسية';
+      }
+      return select ? select.value : 'اللغة العربية';
+    }
+
+    function getSelectedExamGrade() {
+      const select = document.getElementById('exam-grade-select');
+      const custom = document.getElementById('exam-grade-custom');
+      if (select && select.value === 'custom') {
+        return custom.value.trim() || 'الصف الدراسي';
+      }
+      return select ? select.value : 'الصف الأول الإعدادي';
+    }
+
+    const PREVIEW_SAMPLES = {
+      arabic: {
+        subject: 'اللغة العربية',
+        grade: 'الصف الأول الإعدادي',
+        time: 'ساعتان ونصف',
+        content: `أولاً: التعبير: (٨ درجات)
+أ) اكتب لافتة إرشادية تحث فيها زملاءك على القراءة والمطالعة.
+ب) اكتب موضوعاً تعبيرياً عن: (أهمية العمل والإنتاج في نهضة الوطن).
+
+ثانياً: القراءة: (١٠ درجات)
+من موضوع «الحرية»:
+"فالحرية شمس يجب أن تشرق في كل نفس، فمن عاش محروماً منها عاش في ظلمة حالكة..."
+١. مرادف (حالكة): [ شديدة السواد | باردة | بعيدة ].
+٢. بماذا وصف الكاتب الإنسان الذي يعيش محروماً من الحرية؟
+٣. ماذا نتعلم من قصة الهرة مع الكاتب؟
+
+ثالثاً: النصوص: (١٠ درجات)
+من نص «من مكارم الأخلاق»:
+قال رسول الله ﷺ: "ما نقص مال من صدقة، وما زاد الله عبداً بعفو إلا عزاً، وما تواضع أحد لله إلا رفعه".
+١. هات مرادف (عفواً)، ومضاد (تواضع).
+٢. إلى أي القيم الأخلاقية يدعونا الحديث الشريف؟
+٣. ما الجمال في: (ما نقص مال من صدقة)؟
+
+رابعاً: النحو: (١٠ درجات)
+«الصدق خلق عظيم يسمو بصاحبه، ويجعله محبوباً بين الناس، فكن صادقاً تفز بالجنة...»
+١. أعرب الكلمات التي تحتها خط: (خلق - محبوباً).
+٢. استخرج من الفقرة: فعلاً لازماً، وفعلاً متعدياً، وضميراً مستتراً وقدره.`
+      },
+      science: {
+        subject: 'العلوم',
+        grade: 'الصف الثاني الإعدادي',
+        time: 'ساعتان',
+        content: `السؤال الأول: (أ) اكتب المصطلح العلمي: (٥ درجات)
+١. الاضطراب الذي ينتقل ويقوم بنقل الطاقة في اتجاه انتشارها. ( .................... )
+٢. عناصر تجمع في خواصها بين الفلزات واللافلزات. ( .................... )
+٣. طبقة الغلاف الجوي التي تحتوي على طبقة الأوزون. ( .................... )
+
+(ب) علل لما يأتي: (٥ درجات)
+١. يفضل الطيارون التحليق في الجزء السفلي من الستراتوسفير.
+........................................................................................
+٢. شذوذ خواص الماء وارتفاع درجة غليانه عن باقي المركبات.
+........................................................................................
+
+السؤال الثاني: ضع علامة (✓) أو (✗): (٥ درجات)
+١. تزداد الخاصية الفلزية لعناصر المجموعة الأولى بزيادة العدد الذري. (   )
+٢. الأشعة تحت الحمراء لها تأثير كيميائي ضار. (   )
+٣. الحفرية المرشدة تدل على العمر النسبي للصخور الرسوبية. (   )`
+      },
+      math: {
+        subject: 'الرياضيات',
+        grade: 'الصف الأول الإعدادي',
+        time: 'ساعتان',
+        content: `السؤال الأول: اختر الإجابة الصحيحة مما بين القوسين: (١٠ درجات)
+١. إذا كانت س + ٣ = ٧، فإن س = ................
+   [ أ) ٢  |  ب) ٣  |  ج) ٤  |  د) ٥ ]
+٢. قياس الزاوية القائمة يساوي ................
+   [ أ) ٤٥°  |  ب) ٩٠°  |  ج) ١٨٠°  |  د) ٣٦٠° ]
+٣. الوسط الحسابي للقيم (٢، ٥، ٨) هو ................
+   [ أ) ٥  |  ب) ٦  |  ج) ٧  |  د) ٨ ]
+٤. مجموع قياسات الزوايا المتجمعة حول نقطة واحدة = ................
+   [ أ) ٩٠°  |  ب) ١٨٠°  |  ج) ٢٧٠°  |  د) ٣٦٠° ]
+
+السؤال الثاني: ضع علامة (✓) أو (✗): (١٠ درجات)
+١. القطران متساويان ومتعامدان في المربع. (   )
+٢. العدد الأولي الزوجي الوحيد هو الرقم ٢. (   )
+
+السؤال الثالث: مسألة هندسية: (١٠ درجات)
+مستطيل طوله ٦ سم وعرضه ٤ سم، احسب كلاً من: محيطه ومساحته.`
+      },
+      social: {
+        subject: 'الدراسات الاجتماعية',
+        grade: 'الصف الثالث الإعدادي',
+        time: 'ساعتان',
+        content: `أولاً: الجغرافيا:
+السؤال الأول: بم تفسر: (٥ درجات)
+١. ضيق السهول الساحلية في شرق قارة أستراليا.
+........................................................................................
+٢. تعد قارة آسيا أكبر قارات العالم سكاناً وتنوعاً.
+........................................................................................
+
+ثانياً: التاريخ:
+السؤال الثاني: لمن تنسب الأعمال الآتية: (٥ درجات)
+١. انتصر على المماليك في معركتي مرج دابق والريدانية عام ١٥١٧م. ( .................... )
+٢. قاد ثورة القاهرة الأولى ضد نابليون بونابرت. ( .................... )
+٣. أنشأ القناطر الخيرية واهتم بزراعة المحاصيل النقدية كالقطن. ( .................... )`
+      }
+    };
+
+    function loadPreviewExamSample(key) {
+      const s = PREVIEW_SAMPLES[key] || PREVIEW_SAMPLES.arabic;
+      const subjSelect = document.getElementById('exam-subject-select');
+      const gradeSelect = document.getElementById('exam-grade-select');
+      const timeSelect = document.getElementById('exam-time-select');
+      
+      if (subjSelect) subjSelect.value = s.subject;
+      if (gradeSelect) gradeSelect.value = s.grade;
+      if (timeSelect) timeSelect.value = s.time;
+      document.getElementById('exam-textarea').value = s.content;
+
+      saveUserDocPreview({
+        name: `نموذج_امتحان_${s.subject}_${s.grade.replace(/\s+/g, '_')}.doc`,
+        type: 'Exam',
+        size: `${Math.max(1, Math.round(s.content.length / 1024))} KB`,
+        pages: `نموذج ${s.subject}`,
+        content: s.content
+      });
+
+      alert(`✓ تم تحميل نموذج امتحان (${s.subject} - ${s.grade}) بنجاح!`);
+    }
+
+    function handleExamFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        selectedExamImage = event.target.result;
+        document.getElementById('exam-preview-box').innerHTML = `
+          <img src="${selectedExamImage}" class="max-h-40 rounded-xl mx-auto object-contain" />
+          <p class="text-xs text-purple-400 font-bold">تم اختيار صورة الأسئلة</p>
+        `;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function runExamMaker() {
+      const btn = document.getElementById('run-exam-btn');
+      const originalText = btn.innerHTML;
+      const subject = getSelectedExamSubject();
+      const grade = getSelectedExamGrade();
+
+      if (!selectedExamImage) {
+        loadPreviewExamSample('arabic');
+        return;
+      }
+
+      btn.innerHTML = '<span class="animate-spin inline-block mr-1">⏳</span> جارٍ صياغة امتحان ' + subject + ' لـ ' + grade + '...';
+      btn.disabled = true;
+
+      try {
+        const prompt = `أنت خبير صياغة وتنسيق اختبارات المدارس المصرية. حلل صورة الأسئلة المرفقة، وحوّلها إلى ورقة امتحان رسمية لمادة ${subject} لـ ${grade} مع توزيع الدرجات وخانات الإجابة.`;
+        const result = await callGemini(selectedExamImage, prompt);
+        document.getElementById('exam-textarea').value = result;
+
+        saveUserDocPreview({
+          name: `امتحان_${subject}_${grade.replace(/\s+/g, '_')}.doc`,
+          type: 'Exam',
+          size: `${Math.max(1, Math.round(result.length / 1024))} KB`,
+          pages: `اختبار ${subject} - ${grade}`,
+          content: result
+        });
+      } catch (err) {
+        if (err.message === 'NO_API_KEY') {
+          alert('يرجى إضافة مفتاح Gemini API المجاني في الإعدادات.');
+          switchTab('settings');
+        } else {
+          alert('حدث خطأ: ' + err.message);
+        }
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        initIcons();
+      }
+    }
+
+    function printOfficialExam() {
+      const content = document.getElementById('exam-textarea').value;
+      const subject = getSelectedExamSubject();
+      const grade = getSelectedExamGrade();
+      const timeSelect = document.getElementById('exam-time-select');
+      const examTime = timeSelect ? timeSelect.value : 'ساعتان';
+
+      const printWin = window.open('', '_blank');
+      printWin.document.write(`
+        <html lang="ar" dir="rtl">
+        <head>
+          <title>امتحان ${subject} - ${grade}</title>
+          <style>
+            @page { size: A4; margin: 15mm; }
+            body { font-family: 'Cairo', Tahoma, sans-serif; direction: rtl; line-height: 1.6; color: #000; }
+            .header-box { border: 2px solid #000; padding: 12px; margin-bottom: 20px; border-radius: 8px; }
+            .header-top { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 8px; }
+            .header-fields { display: flex; justify-content: space-between; font-size: 13px; border-top: 1px dashed #666; padding-top: 8px; }
+            .content { font-size: 15px; white-space: pre-wrap; }
+            .footer { text-align: center; margin-top: 30px; font-weight: bold; border-top: 1px solid #000; padding-top: 8px; font-size: 13px; }
+          </style>
+        </head>
+        <body>
+          <div class="header-box">
+            <div class="header-top">
+              <div>جمهورية مصر العربية<br>وزارة التربية والتعليم</div>
+              <div style="font-size: 18px; text-align: center;">اختبار مادة: ${subject}<br><span style="font-size: 14px;">${grade}</span></div>
+              <div>الزمن: ساعتان<br>الدرجة: [ ٤٠ ]</div>
+            </div>
+            <div class="header-fields">
+              <div>اسم الطالب: ....................................................</div>
+              <div>رقم الجلوس: ...............</div>
+            </div>
+          </div>
+          <div class="content">${content}</div>
+          <div class="footer">«مع أطيب التمنيات بالنجاح والتفوق»</div>
+          <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+    }
+
+    // Image to PDF Functions
+    function handleFileSelect(event) {
+      const files = Array.from(event.target.files);
+      if (!files.length) return;
+
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          uploadedImages.push({
+            id: Date.now() + Math.random(),
+            name: file.name,
+            src: e.target.result,
+            rotation: 0
+          });
+          renderGallery();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderGallery() {
+      const container = document.getElementById('gallery-container');
+      const grid = document.getElementById('images-grid');
+      const badge = document.getElementById('image-count-badge');
+
+      if (uploadedImages.length === 0) {
+        container.classList.add('hidden');
+        return;
+      }
+
+      container.classList.remove('hidden');
+      badge.innerText = `${uploadedImages.length} صور جاهزة للدمج`;
+
+      grid.innerHTML = '';
+      uploadedImages.forEach((img, idx) => {
+        const card = document.createElement('div');
+        card.className = 'relative rounded-2xl bg-slate-800/80 border border-slate-700 overflow-hidden flex flex-col justify-between';
+        
+        let filterStyle = '';
+        if (currentFilter === 'bw') filterStyle = 'filter: grayscale(100%);';
+        if (currentFilter === 'high-contrast') filterStyle = 'filter: grayscale(100%) contrast(170%) brightness(110%);';
+
+        card.innerHTML = `
+          <div class="relative aspect-[3/4] bg-slate-950 flex items-center justify-center overflow-hidden">
+            <img src="${img.src}" style="transform: rotate(${img.rotation}deg); ${filterStyle}" class="max-h-full max-w-full object-contain transition duration-200" alt="صورة ${idx + 1}" />
+            <span class="absolute top-2 right-2 bg-slate-900/80 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-700">
+              ص ${idx + 1}
+            </span>
+          </div>
+          <div class="flex items-center justify-between p-2 bg-slate-800 border-t border-slate-700 text-slate-300">
+            <button onclick="rotateImage(${idx})" class="p-1.5 rounded-lg bg-slate-700/80 hover:bg-slate-600 hover:text-white" title="تدوير">
+              <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+            </button>
+            <div class="flex items-center gap-1">
+              ${idx > 0 ? `<button onclick="moveImage(${idx}, -1)" class="p-1.5 rounded-lg bg-slate-700/80 hover:text-white"><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></button>` : ''}
+              ${idx < uploadedImages.length - 1 ? `<button onclick="moveImage(${idx}, 1)" class="p-1.5 rounded-lg bg-slate-700/80 hover:text-white"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i></button>` : ''}
+            </div>
+            <button onclick="deleteImage(${idx})" class="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20" title="حذف">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      initIcons();
+    }
+
+    function rotateImage(idx) {
+      uploadedImages[idx].rotation = (uploadedImages[idx].rotation + 90) % 360;
+      renderGallery();
+    }
+
+    function moveImage(idx, dir) {
+      const target = idx + dir;
+      if (target < 0 || target >= uploadedImages.length) return;
+      const temp = uploadedImages[idx];
+      uploadedImages[idx] = uploadedImages[target];
+      uploadedImages[target] = temp;
+      renderGallery();
+    }
+
+    function deleteImage(idx) {
+      uploadedImages.splice(idx, 1);
+      renderGallery();
+    }
+
+    function clearImages() {
+      uploadedImages = [];
+      renderGallery();
+    }
+
+    function setFilter(filterName) {
+      currentFilter = filterName;
+      ['original', 'bw', 'high-contrast'].forEach(f => {
+        const btn = document.getElementById('filter-btn-' + f);
+        if (btn) {
+          if (f === filterName) {
+            btn.className = 'py-2 px-1 rounded-xl bg-emerald-500 text-slate-950 font-bold border border-emerald-400';
+          } else {
+            btn.className = 'py-2 px-1 rounded-xl bg-slate-800 text-slate-300 font-semibold border border-slate-700';
+          }
+        }
+      });
+      renderGallery();
+    }
+
+    async function generatePDF() {
+      if (uploadedImages.length === 0) {
+        alert('يرجى رفع صورة واحدة على الأقل أولاً.');
+        return;
+      }
+
+      const btn = document.getElementById('generate-pdf-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="animate-spin inline-block mr-2">⏳</span> جارٍ إنشاء وتنسيق الـ PDF...';
+      btn.disabled = true;
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const marginOption = document.getElementById('margin-select').value;
+        const margin = marginOption === 'none' ? 0 : (marginOption === 'wide' ? 20 : 10);
+
+        for (let i = 0; i < uploadedImages.length; i++) {
+          if (i > 0) pdf.addPage();
+
+          const item = uploadedImages[i];
+          const img = new Image();
+          img.src = item.src;
+          await new Promise((res) => { img.onload = res; });
+
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          const isSideways = item.rotation === 90 || item.rotation === 270;
+          canvas.width = isSideways ? img.height : img.width;
+          canvas.height = isSideways ? img.width : img.height;
+
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate((item.rotation * Math.PI) / 180);
+          ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+          if (currentFilter === 'bw' || currentFilter === 'high-contrast') {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imgData.data;
+            for (let j = 0; j < d.length; j += 4) {
+              const avg = (d[j] * 0.299 + d[j + 1] * 0.587 + d[j + 2] * 0.114);
+              let val = avg;
+              if (currentFilter === 'high-contrast') {
+                val = avg < 140 ? 0 : 255;
+              }
+              d[j] = val;
+              d[j + 1] = val;
+              d[j + 2] = val;
+            }
+            ctx.putImageData(imgData, 0, 0);
+          }
+
+          const processedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+          const usableWidth = pageWidth - (margin * 2);
+          const usableHeight = pageHeight - (margin * 2);
+
+          const imgRatio = canvas.width / canvas.height;
+          const targetRatio = usableWidth / usableHeight;
+
+          let renderW, renderH;
+          if (imgRatio > targetRatio) {
+            renderW = usableWidth;
+            renderH = usableWidth / imgRatio;
+          } else {
+            renderH = usableHeight;
+            renderW = usableHeight * imgRatio;
+          }
+
+          const posX = margin + (usableWidth - renderW) / 2;
+          const posY = margin + (usableHeight - renderH) / 2;
+
+          pdf.addImage(processedDataUrl, 'JPEG', posX, posY, renderW, renderH);
+        }
+
+        const pdfName = `ملزمة_Soura_${Date.now()}.pdf`;
+        pdf.save(pdfName);
+        saveUserDocPreview({
+          name: pdfName,
+          type: 'PDF',
+          size: `${(uploadedImages.length * 0.35).toFixed(1)} MB`,
+          pages: `${uploadedImages.length} صفحة`,
+          dataUrl: pdf.output('datauristring')
+        });
+        alert('🎉 تم إنشاء وتحميل ملف الـ PDF وحفظه في "مستنداتي" بنجاح!');
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء إنشاء الـ PDF.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        initIcons();
+      }
+    }
+
+    // Modal & Install Handlers
+    function openInstallModal() {
+      document.getElementById('install-modal').classList.remove('hidden');
+      initIcons();
+    }
+
+    function closeInstallModal(e) {
+      document.getElementById('install-modal').classList.add('hidden');
+    }
+
+    function triggerInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          closeInstallModal();
+        });
+      } else {
+        alert('لتثبيت Soura على جهازك:\nاضغط خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "Install App".');
+        closeInstallModal();
+      }
+    }
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        icon.setAttribute('data-lucide', 'sun');
+        icon.className = 'w-4 h-4 text-amber-400';
+      } else {
+        icon.setAttribute('data-lucide', 'moon');
+        icon.className = 'w-4 h-4 text-slate-600';
+      }
+      initIcons();
+    }
+  </script>
+</body>
+</html>
