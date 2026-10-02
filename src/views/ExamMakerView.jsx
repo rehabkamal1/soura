@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpCircle, Upload, Printer, Sparkles, RefreshCw, AlertCircle, Check, BookOpen, Layers } from 'lucide-react';
+import { HelpCircle, Upload, Printer, FileDown, Sparkles, RefreshCw, AlertCircle, Check, BookOpen, Layers } from 'lucide-react';
 import { convertToExam, getApiKey, cleanExamContent } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
 
@@ -323,6 +323,120 @@ export function ExamMakerView({ onOpenSettings }) {
     printWindow.document.close();
   };
 
+  const handleDownloadWord = () => {
+    if (!examContent) return;
+    const finalContent = cleanExamContent(examContent);
+
+    saveUserDocument({
+      name: `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`,
+      type: 'Exam',
+      size: `${Math.max(1, Math.round(finalContent.length / 1024))} KB`,
+      pages: `اختبار ${activeSubject} - ${activeGrade}`,
+      content: finalContent
+    });
+
+    const docHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset="utf-8">
+        <title>امتحان ${activeSubject} - ${activeGrade}</title>
+        <!--[if gte mso 9]>
+        <xml>
+          <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+          </w:WordDocument>
+        </xml>
+        <![endif]-->
+        <style>
+          body { 
+            font-family: 'Cairo', 'Traditional Arabic', 'Segoe UI', Tahoma, sans-serif; 
+            direction: rtl; 
+            text-align: right; 
+            line-height: 1.8; 
+            font-size: 14pt;
+          }
+          table.header-box { 
+            width: 100%; 
+            border: 2px solid #000; 
+            border-collapse: collapse; 
+            margin-bottom: 25px; 
+          }
+          table.header-box td { 
+            padding: 8px 12px; 
+            vertical-align: middle; 
+          }
+          .title { 
+            text-align: center; 
+            font-size: 16pt; 
+            font-weight: bold; 
+          }
+          .content { 
+            font-size: 13.5pt; 
+            line-height: 2.0; 
+            white-space: pre-wrap; 
+          }
+          .footer { 
+            text-align: center; 
+            margin-top: 35px; 
+            border-top: 1px solid #000; 
+            padding-top: 10px; 
+            font-weight: bold; 
+            font-size: 12pt;
+          }
+        </style>
+      </head>
+      <body lang="AR-EG" dir="rtl">
+        <table class="header-box" border="1" dir="rtl">
+          <tr>
+            <td width="33%" align="right">
+              <b>جمهورية مصر العربية</b><br>
+              <b>وزارة التربية والتعليم</b>
+            </td>
+            <td width="34%" class="title">
+              اختبار مادة: ${activeSubject}<br>
+              <span style="font-size: 13pt; font-weight: normal;">${activeGrade}</span>
+            </td>
+            <td width="33%" align="left">
+              <b>الزمن: ${examTime}</b><br>
+              <b>الدرجة العظمى: [ ٤٠ ]</b>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" align="right">
+              اسم الطالب: ....................................................
+            </td>
+            <td align="left">
+              رقم الجلوس: ............... الفصل: ........
+            </td>
+          </tr>
+        </table>
+
+        <div class="content" dir="rtl">
+          ${finalContent.replace(/\n/g, '<br/>')}
+        </div>
+
+        <div class="footer">
+          «مع أطيب التمنيات بالنجاح والتفوق»
+        </div>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob(['\ufeff', docHtml], {
+      type: 'application/msword;charset=utf-8'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+
   const loadSample = (sampleKey) => {
     const s = SAMPLE_EXAMS[sampleKey] || SAMPLE_EXAMS.arabic;
     setSubject(s.subject);
@@ -539,13 +653,23 @@ export function ExamMakerView({ onOpenSettings }) {
         />
 
         {examContent && (
-          <button
-            onClick={handlePrint}
-            className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-purple-600/25 transition active:scale-98 cursor-pointer"
-          >
-            <Printer className="w-4 h-4" />
-            <span>طباعة الامتحان / حفظ PDF بحجم A4</span>
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <button
+              onClick={handlePrint}
+              className="w-full py-3 px-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-purple-600/25 transition active:scale-98 cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>طباعة الامتحان / PDF (A4)</span>
+            </button>
+
+            <button
+              onClick={handleDownloadWord}
+              className="w-full py-3 px-3 rounded-2xl bg-[#1d5fb4] hover:bg-[#18539e] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-600/25 transition active:scale-98 cursor-pointer"
+            >
+              <FileDown className="w-4 h-4" />
+              <span>تحميل Word (.doc) للتعديل 📝</span>
+            </button>
+          </div>
         )}
       </div>
     </div>
