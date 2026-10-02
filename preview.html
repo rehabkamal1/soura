@@ -1202,6 +1202,27 @@
       reader.readAsDataURL(file);
     }
 
+    function cleanExamContentPreview(raw) {
+      if (!raw) return '';
+      let text = raw;
+      text = text.replace(/^(إليك|تفضل|هذه هي|ورقة الامتحان|فيما يلي|مرحباً|أهلاً)[\s\S]*?(?=السؤال الأول|أولاً|اختبار|1[\.\-\)])/i, '');
+      text = text.replace(/^[^\n]*جاهز للطباعة[^\n]*\n+/gi, '');
+      text = text.replace(/^[^\n]*تنسيق رسمي[^\n]*\n+/gi, '');
+      text = text.replace(/^---+\s*\n+/gm, '');
+      text = text.replace(/جمهورية مصر العربية[\s\S]*?(اسم الطالب|رقم الجلوس|الفصل|الدرجة)[\.\s\:\-_]*\n+/gi, '');
+      text = text.replace(/وزارة التربية والتعليم[\s\S]*?(اسم الطالب|رقم الجلوس|الفصل)[\.\s\:\-_]*\n+/gi, '');
+      text = text.replace(/\\text\{([^}]+)\}/g, '$1');
+      text = text.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1 / $2');
+      text = text.replace(/\^2|\{\^2\}|\^\{2\}/g, '²');
+      text = text.replace(/\^3|\{\^3\}|\^\{3\}/g, '³');
+      text = text.replace(/\$+/g, '');
+      text = text.replace(/\\([\{\}\[\]\(\)])/g, '$1');
+      text = text.replace(/\\[a-zA-Z]+/g, '');
+      text = text.replace(/\n*«?مع أطيب التمنيات بالنجاح والتفوق»?\s*$/i, '');
+      text = text.replace(/\n*انتهت الأسئلة\s*$/i, '');
+      return text.trim();
+    }
+
     async function runExamMaker() {
       const btn = document.getElementById('run-exam-btn');
       const originalText = btn.innerHTML;
@@ -1217,16 +1238,34 @@
       btn.disabled = true;
 
       try {
-        const prompt = `أنت خبير صياغة وتنسيق اختبارات المدارس المصرية. حلل صورة الأسئلة المرفقة، وحوّلها إلى ورقة امتحان رسمية لمادة ${subject} لـ ${grade} مع توزيع الدرجات وخانات الإجابة.`;
+        const prompt = `أنت خبير ومعلم متخصص في صياغة ورق امتحانات المدارس الرسمية في مصر والعالم العربي لمادة (${subject}) لـ (${grade}).
+
+المطلوب بدقة واحترافية متناهية:
+1. **استخراج جميع الأسئلة بلا استثناء:**
+   - اقرأ وانقل كافة الأسئلة والمسائل والتمارين الموجودة في الصورة بالكامل (من السؤال 1 حتى آخر سؤال في الورقة، إذا كان هناك 8 أسئلة اكتب الـ 8 أسئلة كاملة دون حذف أو اختصار أي سؤال).
+2. **قواعد صياغة الرياضيات والأرقام:**
+   - ممنوع منعاً باتاً استخدام أي أكواد LaTeX مثل ($ أو \\text أو \\frac أو غيرها).
+   - اكتب الرموز والعمليات كنصوص عربية نقية ورموز يونيكود مباشرة مثل: (² ، ³ ، × ، ÷ ، + ، - ، = ، √ ، % ، ° ، ∩ ، ∪ ، ∈ ، ∉ ، ⊂ ، ∅).
+   - إذا كان هناك شكل هندسي أو رسم (مثل شكل فن Venn diagram): اشرح واكتب معطياته وأسئلته بدقة.
+3. **تنسيق وترتيب الأسئلة:**
+   - رتب خيارات الاختيار من متعدد في سطر واحد: [ أ ] ....    [ ب ] ....    [ ج ] ....    [ د ] ....
+   - اترك مساحات نقطية واضحة للإجابة: ( .................... )
+4. **شروط إخراج النص:**
+   - لا تكتب أي ترويسة عليا (جمهورية مصر العربية، اسم الطالب، رقم الجلوس) لأنها مطبوعة في التصميم مسبقاً.
+   - لا تكتب أي مقدمات أو تحيات نهائياً (مثل إليك ورقة الامتحان، تفضل).
+   - ابدأ فوراً بالسطر:
+السؤال الأول: ...`;
+
         const result = await callGemini(selectedExamImage, prompt);
-        document.getElementById('exam-textarea').value = result;
+        const cleanResult = cleanExamContentPreview(result);
+        document.getElementById('exam-textarea').value = cleanResult;
 
         saveUserDocPreview({
           name: `امتحان_${subject}_${grade.replace(/\s+/g, '_')}.doc`,
           type: 'Exam',
-          size: `${Math.max(1, Math.round(result.length / 1024))} KB`,
+          size: `${Math.max(1, Math.round(cleanResult.length / 1024))} KB`,
           pages: `اختبار ${subject} - ${grade}`,
-          content: result
+          content: cleanResult
         });
       } catch (err) {
         if (err.message === 'NO_API_KEY') {
@@ -1243,7 +1282,8 @@
     }
 
     function printOfficialExam() {
-      const content = document.getElementById('exam-textarea').value;
+      const rawContent = document.getElementById('exam-textarea').value;
+      const content = cleanExamContentPreview(rawContent);
       const subject = getSelectedExamSubject();
       const grade = getSelectedExamGrade();
       const timeSelect = document.getElementById('exam-time-select');
@@ -1254,31 +1294,110 @@
         <html lang="ar" dir="rtl">
         <head>
           <title>امتحان ${subject} - ${grade}</title>
+          <meta charset="UTF-8">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"><\/script>
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"><\/script>
           <style>
-            @page { size: A4; margin: 15mm; }
-            body { font-family: 'Cairo', Tahoma, sans-serif; direction: rtl; line-height: 1.6; color: #000; }
-            .header-box { border: 2px solid #000; padding: 12px; margin-bottom: 20px; border-radius: 8px; }
-            .header-top { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 8px; }
-            .header-fields { display: flex; justify-content: space-between; font-size: 13px; border-top: 1px dashed #666; padding-top: 8px; }
-            .content { font-size: 15px; white-space: pre-wrap; }
-            .footer { text-align: center; margin-top: 30px; font-weight: bold; border-top: 1px solid #000; padding-top: 8px; font-size: 13px; }
+            @page { size: A4 portrait; margin: 15mm; }
+            * { box-sizing: border-box; }
+            body { 
+              font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; 
+              direction: rtl; 
+              line-height: 1.85; 
+              color: #111827; 
+              background: #fff;
+              margin: 0;
+              padding: 0;
+            }
+            .header-box { 
+              border: 2.5px solid #000; 
+              padding: 14px 18px; 
+              margin-bottom: 22px; 
+              border-radius: 12px; 
+              background: #fafafa;
+            }
+            .header-top { 
+              display: flex; 
+              justify-content: space-between; 
+              align-items: center;
+              font-weight: 700; 
+              font-size: 14px; 
+              margin-bottom: 12px; 
+            }
+            .header-title-box {
+              font-size: 20px; 
+              font-weight: 900;
+              text-align: center;
+              line-height: 1.3;
+            }
+            .header-fields { 
+              display: flex; 
+              justify-content: space-between; 
+              font-size: 13.5px; 
+              font-weight: 600;
+              border-top: 1.5px dashed #4b5563; 
+              padding-top: 10px; 
+            }
+            .content { 
+              font-size: 15px; 
+              white-space: pre-wrap; 
+              line-height: 1.9;
+              font-weight: 500;
+              padding: 4px 6px;
+            }
+            .footer { 
+              text-align: center; 
+              margin-top: 35px; 
+              font-weight: 800; 
+              border-top: 1.5px solid #111827; 
+              padding-top: 10px; 
+              font-size: 14px; 
+              color: #1f2937;
+            }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
           </style>
         </head>
         <body>
           <div class="header-box">
             <div class="header-top">
-              <div>جمهورية مصر العربية<br>وزارة التربية والتعليم</div>
-              <div style="font-size: 18px; text-align: center;">اختبار مادة: ${subject}<br><span style="font-size: 14px;">${grade}</span></div>
-              <div>الزمن: ساعتان<br>الدرجة: [ ٤٠ ]</div>
+              <div style="line-height: 1.4;">جمهورية مصر العربية<br>وزارة التربية والتعليم</div>
+              <div class="header-title-box">
+                اختبار مادة: ${subject}<br>
+                <span style="font-size: 15px; font-weight: 700; color: #374151;">${grade}</span>
+              </div>
+              <div style="text-align: left; line-height: 1.4;">
+                الزمن: ${examTime}<br>
+                الدرجة العظمى: [ ٤٠ ]
+              </div>
             </div>
             <div class="header-fields">
               <div>اسم الطالب: ....................................................</div>
               <div>رقم الجلوس: ...............</div>
+              <div>الفصل: ...........</div>
             </div>
           </div>
-          <div class="content">${content}</div>
+          <div class="content" id="exam-body">${content}</div>
           <div class="footer">«مع أطيب التمنيات بالنجاح والتفوق»</div>
-          <script>window.onload = function() { window.print(); }<\/script>
+          <script>
+            window.onload = function() {
+              if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(document.body, {
+                  delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                  ],
+                  throwOnError: false
+                });
+              }
+              setTimeout(() => { window.print(); }, 250);
+            }
+          <\/script>
         </body>
         </html>
       `);

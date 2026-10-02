@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HelpCircle, Upload, Printer, Sparkles, RefreshCw, AlertCircle, Check, BookOpen, Layers } from 'lucide-react';
-import { convertToExam, getApiKey } from '../services/geminiService';
+import { convertToExam, getApiKey, cleanExamContent } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
 
 const POPULAR_GRADES = [
@@ -176,15 +176,16 @@ export function ExamMakerView({ onOpenSettings }) {
         grade: activeGrade,
         time: examTime
       });
-      setExamContent(generated);
+      const cleaned = cleanExamContent(generated);
+      setExamContent(cleaned);
 
       // Auto-save to "مستنداتي"
       saveUserDocument({
         name: `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`,
         type: 'Exam',
-        size: `${Math.max(1, Math.round(generated.length / 1024))} KB`,
+        size: `${Math.max(1, Math.round(cleaned.length / 1024))} KB`,
         pages: `اختبار ${activeSubject} - ${activeGrade}`,
-        content: generated
+        content: cleaned
       });
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
@@ -196,12 +197,14 @@ export function ExamMakerView({ onOpenSettings }) {
   };
 
   const handlePrint = () => {
+    const finalCleanContent = cleanExamContent(examContent);
+
     saveUserDocument({
       name: `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`,
       type: 'Exam',
-      size: `${Math.max(1, Math.round(examContent.length / 1024))} KB`,
+      size: `${Math.max(1, Math.round(finalCleanContent.length / 1024))} KB`,
       pages: `اختبار ${activeSubject} - ${activeGrade}`,
-      content: examContent
+      content: finalCleanContent
     });
 
     const printWindow = window.open('', '_blank');
@@ -209,22 +212,88 @@ export function ExamMakerView({ onOpenSettings }) {
       <html lang="ar" dir="rtl">
       <head>
         <title>امتحان ${activeSubject} - ${activeGrade}</title>
+        <meta charset="UTF-8">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+        <!-- KaTeX for crisp math rendering if needed -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
         <style>
-          @page { size: A4; margin: 15mm; }
-          body { font-family: 'Cairo', Tahoma, sans-serif; direction: rtl; line-height: 1.6; color: #000; }
-          .header-box { border: 2px solid #000; padding: 12px; margin-bottom: 20px; border-radius: 8px; }
-          .header-top { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 8px; }
-          .header-fields { display: flex; justify-content: space-between; font-size: 13px; border-top: 1px dashed #666; padding-top: 8px; }
-          .content { font-size: 15px; white-space: pre-wrap; }
-          .footer { text-align: center; margin-top: 30px; font-weight: bold; border-top: 1px solid #000; padding-top: 8px; font-size: 13px; }
+          @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }
+          * { box-sizing: border-box; }
+          body { 
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; 
+            direction: rtl; 
+            line-height: 1.85; 
+            color: #111827; 
+            background: #fff;
+            margin: 0;
+            padding: 0;
+          }
+          .header-box { 
+            border: 2.5px solid #000; 
+            padding: 14px 18px; 
+            margin-bottom: 22px; 
+            border-radius: 12px; 
+            background: #fafafa;
+          }
+          .header-top { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-weight: 700; 
+            font-size: 14px; 
+            margin-bottom: 12px; 
+          }
+          .header-title-box {
+            font-size: 20px; 
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.3;
+          }
+          .header-fields { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 13.5px; 
+            font-weight: 600;
+            border-top: 1.5px dashed #4b5563; 
+            padding-top: 10px; 
+          }
+          .content { 
+            font-size: 15px; 
+            white-space: pre-wrap; 
+            line-height: 1.9;
+            font-weight: 500;
+            padding: 4px 6px;
+          }
+          .footer { 
+            text-align: center; 
+            margin-top: 35px; 
+            font-weight: 800; 
+            border-top: 1.5px solid #111827; 
+            padding-top: 10px; 
+            font-size: 14px; 
+            color: #1f2937;
+          }
+          @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          }
         </style>
       </head>
       <body>
         <div class="header-box">
           <div class="header-top">
-            <div>جمهورية مصر العربية<br>وزارة التربية والتعليم</div>
-            <div style="font-size: 18px; text-align: center;">اختبار مادة: ${activeSubject}<br><span style="font-size: 14px;">${activeGrade}</span></div>
-            <div>الزمن: ${examTime}<br>الدرجة العظمى: [ ٤٠ ]</div>
+            <div style="line-height: 1.4;">جمهورية مصر العربية<br>وزارة التربية والتعليم</div>
+            <div class="header-title-box">
+              اختبار مادة: ${activeSubject}<br>
+              <span style="font-size: 15px; font-weight: 700; color: #374151;">${activeGrade}</span>
+            </div>
+            <div style="text-align: left; line-height: 1.4;">
+              الزمن: ${examTime}<br>
+              الدرجة العظمى: [ ٤٠ ]
+            </div>
           </div>
           <div class="header-fields">
             <div>اسم الطالب: ....................................................</div>
@@ -232,10 +301,21 @@ export function ExamMakerView({ onOpenSettings }) {
             <div>الفصل: ...........</div>
           </div>
         </div>
-        <div class="content">${examContent}</div>
+        <div class="content" id="exam-body">${finalCleanContent}</div>
         <div class="footer">«مع أطيب التمنيات بالنجاح والتفوق»</div>
         <script>
-          window.onload = function() { window.print(); }
+          window.onload = function() {
+            if (typeof renderMathInElement !== 'undefined') {
+              renderMathInElement(document.body, {
+                delimiters: [
+                  {left: '$$', right: '$$', display: true},
+                  {left: '$', right: '$', display: false}
+                ],
+                throwOnError: false
+              });
+            }
+            setTimeout(() => { window.print(); }, 250);
+          }
         </script>
       </body>
       </html>
