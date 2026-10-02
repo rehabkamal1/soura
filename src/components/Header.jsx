@@ -1,7 +1,7 @@
 import React from 'react';
-import { Sparkles, DownloadCloud, Moon, Sun, ArrowRight } from 'lucide-react';
+import { Sparkles, DownloadCloud, CheckCircle, Moon, Sun, ArrowRight } from 'lucide-react';
 
-export function Header({ currentView, onBack, onOpenInstall, darkMode, toggleDarkMode }) {
+export function Header({ currentView, onBack, onOpenInstall, darkMode, toggleDarkMode, isInstalled }) {
   const isHome = currentView === 'home';
 
   return (
@@ -40,14 +40,24 @@ export function Header({ currentView, onBack, onOpenInstall, darkMode, toggleDar
         </div>
 
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={onOpenInstall}
-            className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:scale-95 transition border border-emerald-500/30"
-            title="تثبيت التطبيق"
-          >
-            <DownloadCloud className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">تثبيت</span>
-          </button>
+          {isInstalled ? (
+            <span
+              className="flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+              title="التطبيق مثبت ومحدث لآخر إصدار"
+            >
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="hidden sm:inline">أحدث إصدار</span>
+            </span>
+          ) : (
+            <button
+              onClick={onOpenInstall}
+              className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 active:scale-95 transition border border-emerald-500/30"
+              title="تثبيت التطبيق"
+            >
+              <DownloadCloud className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">تثبيت</span>
+            </button>
+          )}
 
           <button
             onClick={toggleDarkMode}

@@ -97,7 +97,7 @@
 
       <div class="flex items-center gap-1.5">
         <!-- Install App Button -->
-        <button onclick="openInstallModal()" class="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 transition active:scale-95">
+        <button id="header-install-btn" onclick="openInstallModal()" class="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 transition active:scale-95">
           <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
           <span>تثبيت</span>
         </button>
@@ -108,6 +108,9 @@
         </button>
       </div>
     </header>
+
+    <!-- Floating Instant Update Toast Notification -->
+    <div id="instant-update-toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-3 rounded-2xl shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2 text-xs font-bold border border-white/20 hidden animate-bounce text-center"></div>
 
     <!-- Main Content Area -->
     <main class="flex-1 pb-24 overflow-y-auto px-4 py-4 space-y-4">
@@ -1500,12 +1503,54 @@
       document.getElementById('install-modal').classList.add('hidden');
     }
 
+    function showUpdateToast(msg) {
+      const toast = document.getElementById('instant-update-toast');
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 4000);
+      }
+    }
+
+    function markAppInstalled(notify = true) {
+      localStorage.setItem('soura_pwa_installed', 'true');
+      const btn = document.getElementById('header-install-btn');
+      if (btn) {
+        btn.outerHTML = `
+          <span id="header-install-btn" class="flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" title="التطبيق مثبت ومحدث لآخر إصدار">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span class="hidden sm:inline">أحدث إصدار ✓</span>
+          </span>
+        `;
+        initIcons();
+      }
+      if (notify) {
+        showUpdateToast('🎉 تم تثبيت تطبيق صورة وتحديثه لآخر إصدار فورياً!');
+      }
+    }
+
+    // Auto-detect if already running as installed app
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || localStorage.getItem('soura_pwa_installed') === 'true') {
+      setTimeout(() => markAppInstalled(false), 200);
+    }
+
+    // Instant update on appinstalled event
+    window.addEventListener('appinstalled', () => {
+      markAppInstalled(true);
+      closeInstallModal();
+    });
+
     function triggerInstall() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult && choiceResult.outcome === 'accepted') {
+            markAppInstalled(true);
+          }
           closeInstallModal();
-        });
+        }).catch(() => closeInstallModal());
       } else {
         alert('لتثبيت Soura على جهازك:\nاضغط خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "Install App".');
         closeInstallModal();
@@ -1524,6 +1569,18 @@
         icon.className = 'w-4 h-4 text-slate-600';
       }
       initIcons();
+    }
+
+    // Auto-Register Service Worker for PWA & Instant Auto-Updates
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          reg.update();
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') reg.update();
+          });
+        }).catch(() => {});
+      });
     }
   </script>
 </body>

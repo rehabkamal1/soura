@@ -18,9 +18,18 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isInstallOpen, setIsInstallOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [updateToast, setUpdateToast] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
 
-  // Initialize Theme from localStorage or system preference
+  const showToast = (message) => {
+    setUpdateToast(message);
+    setTimeout(() => {
+      setUpdateToast(null);
+    }, 4000);
+  };
+
+  // Initialize Theme and Check if Already Installed (Standalone)
   useEffect(() => {
     const savedTheme = localStorage.getItem('soura_theme');
     const isDark = savedTheme ? savedTheme === 'dark' : true;
@@ -30,15 +39,22 @@ export default function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    const checkStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                            window.navigator.standalone === true ||
+                            localStorage.getItem('soura_pwa_installed') === 'true';
+    if (checkStandalone) {
+      setIsInstalled(true);
+    }
   }, []);
 
-  // Capture PWA Install Prompt
+  // Capture PWA Install Prompt & Instant appinstalled Event
   useEffect(() => {
     const handleBeforeInstall = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       const hasShown = localStorage.getItem('soura_install_prompted');
-      if (!hasShown) {
+      if (!hasShown && !isInstalled) {
         setTimeout(() => {
           setIsInstallOpen(true);
           localStorage.setItem('soura_install_prompted', 'true');
@@ -46,9 +62,22 @@ export default function App() {
       }
     };
 
+    // Instant update when app is installed without requiring page refresh
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setIsInstallOpen(false);
+      localStorage.setItem('soura_pwa_installed', 'true');
+      showToast('🎉 تم تثبيت تطبيق صورة بنجاح، التطبيق يعمل الآن بأحدث إصدار!');
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-  }, []);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, [isInstalled]);
 
   const toggleDarkMode = () => {
     const nextMode = !darkMode;
@@ -91,7 +120,15 @@ export default function App() {
           onOpenInstall={() => setIsInstallOpen(true)}
           darkMode={darkMode}
           toggleDarkMode={toggleDarkMode}
+          isInstalled={isInstalled}
         />
+
+        {/* Floating Instant Update Toast Notification */}
+        {updateToast && (
+          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-3 rounded-2xl shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2 text-xs font-bold border border-white/20 animate-bounce text-center">
+            <span>{updateToast}</span>
+          </div>
+        )}
 
         {/* Main Content Area */}
         <main className="flex-1 pb-24 overflow-y-auto px-4 py-4 space-y-4">
@@ -119,6 +156,10 @@ export default function App() {
           isOpen={isInstallOpen}
           onClose={() => setIsInstallOpen(false)}
           deferredPrompt={deferredPrompt}
+          onInstalled={() => {
+            setIsInstalled(true);
+            showToast('🎉 تم تثبيت تطبيق صورة وتحديثه لآخر إصدار فورياً!');
+          }}
         />
       </div>
     </div>

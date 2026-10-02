@@ -22,10 +22,15 @@ export function InstallModal({ isOpen, onClose, deferredPrompt, onInstalled }) {
   const handleInstallClick = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setIsInstalled(true);
-        if (onInstalled) onInstalled();
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setIsInstalled(true);
+          localStorage.setItem('soura_pwa_installed', 'true');
+          if (onInstalled) onInstalled();
+        }
+      } catch (err) {
+        console.error('Install prompt error:', err);
       }
       onClose();
     } else {

@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     
     <!-- Primary SEO Meta Tags -->
     <title>تطبيق صورة (Soura) — تحويل الصور لمستندات ذكية، PDF، ونصوص Word بالذكاء الاصطناعي</title>
@@ -117,13 +120,55 @@
         }
       }
     </script>
-
-    <title>Soura | حوّل صورك إلى مستندات ذكية</title>
   </head>
 
   <body class="bg-slate-950 text-slate-100 font-cairo antialiased selection:bg-emerald-500 selection:text-white min-h-screen">
     <div id="root"></div>
 
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- PWA Service Worker & Instant Auto-Update Listener -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then((reg) => {
+            // Check for updates immediately
+            reg.update();
+
+            // Auto-check for updates whenever the tab/app gains focus or becomes visible
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible') {
+                reg.update();
+              }
+            });
+
+            // If a new service worker is waiting, activate immediately
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              }
+            });
+          }).catch((err) => console.log('SW registration error:', err));
+
+          // When the new Service Worker takes control, reload smoothly once so user sees latest update immediately
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
+          });
+        });
+      }
+    </script>
   </body>
 </html>
