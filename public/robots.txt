@@ -1,0 +1,9 @@
+# robots.txt for Soura (صورة)
+# https://github.com/rehabkamal1/soura
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://soura.vercel.app/sitemap.xml
+Sitemap: https://soura-app.web.app/sitemap.xml
