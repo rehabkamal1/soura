@@ -5,5 +5,5 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://soura.vercel.app/sitemap.xml
+Sitemap: https://soura-iota.vercel.app/sitemap.xml
 Sitemap: https://soura-app.web.app/sitemap.xml
