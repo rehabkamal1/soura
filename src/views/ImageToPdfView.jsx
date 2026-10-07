@@ -139,7 +139,7 @@ export function ImageToPdfView() {
       
       // Save locally to user downloads via Export Ad Modal
       triggerExportWithAd({
-        title: 'تصدير وتحميل ملف PDF 📄',
+        title: 'تصدير وتحميل ملف PDF',
         fileName: docName,
         onDownload: () => pdf.save(docName)
       });
@@ -180,7 +180,7 @@ export function ImageToPdfView() {
         <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between shadow-sm animate-fade-in">
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-            <span className="font-bold">تم تحميل الـ PDF وحفظه في سجل «مستنداتي» بنجاح! 📁</span>
+            <span className="font-bold">تم تحميل الـ PDF وحفظه في سجل «مستنداتي» بنجاح</span>
           </div>
         </div>
       )}
@@ -348,7 +348,7 @@ export function ImageToPdfView() {
           <button
             onClick={generatePDF}
             disabled={isProcessing}
-            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-sm shadow-md shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-sm active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Download className="w-5 h-5" />
             <span>{isProcessing ? progressMsg : 'تصدير وتحميل ملف PDF الآن'}</span>

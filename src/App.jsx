@@ -113,8 +113,8 @@ export default function App() {
   return (
     <ExportAdProvider>
       <div className={`min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-200 ${darkMode ? 'dark' : ''}`}>
-        {/* Mobile-first centered container */}
-        <div className="w-full max-w-md mx-auto min-h-screen flex flex-col bg-white dark:bg-slate-900 shadow-2xl relative border-x border-slate-200 dark:border-slate-800/80 transition-colors duration-200">
+        {/* Responsive centered container */}
+        <div className="w-full max-w-xl md:max-w-2xl mx-auto min-h-screen flex flex-col bg-white dark:bg-slate-900 shadow-xl relative border-x border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200">
           
           {/* Header */}
           <Header

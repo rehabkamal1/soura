@@ -132,7 +132,7 @@ export function DocumentsView({ darkMode }) {
       {/* Notice explaining what these files are */}
       {showDemoSamples && documents.length === 0 && (
         <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 flex items-center justify-between">
-          <span>💡 الملفات المعروضة بالأسفل هي **نماذج توضيحية تجريبية** فقط لعرض أنواع الملفات (PDF / امتحانات / كشوف Excel).</span>
+          <span>ملاحظة: الملفات المعروضة بالأسفل هي نماذج توضيحية تجريبية فقط لعرض أنواع الملفات (PDF، نماذج امتحانات، كشوف Excel).</span>
           <button 
             onClick={() => setShowDemoSamples(false)}
             className="text-[11px] font-bold underline whitespace-nowrap mr-2"

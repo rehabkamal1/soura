@@ -11,7 +11,7 @@ export function BottomNav({ activeTab, onTabChange }) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800/90 pb-safe transition-colors duration-200">
-      <div className="max-w-md mx-auto grid grid-cols-4 px-2 py-2">
+      <div className="max-w-xl md:max-w-2xl mx-auto grid grid-cols-4 px-3 py-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

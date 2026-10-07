@@ -105,12 +105,12 @@ export function ExportAdModal({ isOpen, onClose, onDownload, title = 'جاري �
             <div className="space-y-2">
               <button
                 onClick={handleExecuteDownload}
-                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-95 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 active:scale-98 transition cursor-pointer"
+                className="w-full py-3 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-sm active:scale-98 transition cursor-pointer"
               >
                 <DownloadCloud className="w-4 h-4" />
-                <span>{downloaded ? 'تم بدء التنزيل بنجاح! 🎉' : 'تنزيل وتحميل الملف الآن 📥'}</span>
+                <span>{downloaded ? 'تم بدء التنزيل بنجاح' : 'تنزيل وحفظ الملف الآن'}</span>
               </button>
-              <p className="text-[10px] text-slate-400">ملفك جاهز ومحفوظ محلياً أيضاً في «مستنداتي»</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">ملفك جاهز ومحفوظ أيضاً في سجل «مستنداتي»</p>
             </div>
           )}
         </div>
@@ -118,3 +118,4 @@ export function ExportAdModal({ isOpen, onClose, onDownload, title = 'جاري �
     </div>
   );
 }
+

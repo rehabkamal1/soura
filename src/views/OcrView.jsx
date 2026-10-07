@@ -142,7 +142,7 @@ export function OcrView({ onOpenSettings }) {
       {savedSuccess && (
         <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
           <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-          <span>تم حفظ النص في قائمة «مستنداتي» تلقائياً! 📁</span>
+          <span>تم حفظ النص في «مستنداتي» تلقائياً</span>
         </div>
       )}
 
@@ -164,7 +164,7 @@ export function OcrView({ onOpenSettings }) {
             <div className="relative max-h-48 rounded-2xl overflow-hidden inline-block bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 shadow-sm">
               <img src={image} alt="معاينة الصورة" className="max-h-48 object-contain mx-auto" />
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400">انقر لتغيير الصورة المحددة</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">انقر لاستبدال الصورة المحددة</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -182,23 +182,23 @@ export function OcrView({ onOpenSettings }) {
         <>
           {loading && (
             <div className="p-2 rounded-2xl bg-blue-500/5 border border-blue-500/20">
-              <AdBanner label="إعلان ممول — جاري معالجة واستخراج النص العربي" />
+              <AdBanner label="إعلان ممول — جاري معالجة وتفريغ النص العربي" />
             </div>
           )}
           <button
             onClick={handleProcessOcr}
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-teal-600 text-white font-bold text-sm shadow-md shadow-blue-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold text-sm shadow-sm active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>جارٍ قراءة النص العربي بالذكاء الاصطناعي...</span>
+                <span>جارٍ قراءة وتفريغ النص العربي بدقة...</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>استخراج النص العربي الآن</span>
+                <span>استخراج وتفريغ النص العربي</span>
               </>
             )}
           </button>

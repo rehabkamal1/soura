@@ -105,8 +105,8 @@ export function CleanSheetView() {
         <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto mb-2">
           <Sparkles className="w-6 h-6" />
         </div>
-        <h4 className="font-bold text-sm text-slate-800 dark:text-white">اختر صورة ورقة قديمة أو بها ظلال</h4>
-        <p className="text-[11px] text-slate-500 dark:text-slate-400">يقوم الفلتر الذكي بإزالة السواد وتبييض الخلفية للطباعة</p>
+        <h4 className="font-bold text-sm text-slate-800 dark:text-white">اختر صورة المستند أو الورقة الورقية</h4>
+        <p className="text-[11px] text-slate-500 dark:text-slate-400">معالجة بصرية لإزالة الظلال وتوحيد بياض الخلفية لتوفير حبر الطباعة</p>
       </div>
 
       {imageSrc && (
@@ -115,7 +115,7 @@ export function CleanSheetView() {
           <div className="bg-white dark:bg-slate-800/60 rounded-3xl p-4 border border-slate-200 dark:border-slate-700/60 space-y-3 shadow-sm dark:shadow-none">
             <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300">
               <span className="flex items-center gap-1.5 font-bold">
-                <Sliders className="w-4 h-4 text-teal-500 dark:text-teal-400" /> قوة التبييض وتوضيح الخط:
+                <Sliders className="w-4 h-4 text-teal-500 dark:text-teal-400" /> درجة تبييض ونقاء الخلفية:
               </span>
               <span className="text-teal-600 dark:text-teal-400 font-mono font-bold">{threshold}</span>
             </div>
@@ -137,16 +137,16 @@ export function CleanSheetView() {
           {savedSuccess && (
             <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-              <span>تم حفظ الورقة وتنزيلها، ومتاحة دائماً في صفحة "مستنداتي"!</span>
+              <span>تم حفظ المستند المعالج ومتاح دائماً في «مستنداتي»</span>
             </div>
           )}
 
           <button
             onClick={handleDownload}
-            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 active:scale-[0.98] transition cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500 text-white font-bold text-sm shadow-sm active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Download className="w-5 h-5" />
-            <span>تنزيل الورقة النظيفة وحفظها في مستنداتي</span>
+            <Download className="w-4 h-4" />
+            <span>تحميل المستند المعالج للطباعة</span>
           </button>
         </div>
       )}

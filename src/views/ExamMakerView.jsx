@@ -661,14 +661,14 @@ export function ExamMakerView({ onOpenSettings }) {
       {savedSuccess && (
         <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs flex items-center gap-2 animate-fadeIn">
           <CheckCircle2 className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-          <span>تم حفظ ورقة الامتحان في قائمة «مستنداتي» تلقائياً! 📁</span>
+          <span>تم حفظ ورقة الامتحان في «مستنداتي» تلقائياً</span>
         </div>
       )}
 
       {copyFeedback && (
         <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 animate-fadeIn">
           <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-          <span>تم نسخ نص الامتحان إلى الحافظة بنجاح! 📋</span>
+          <span>تم نسخ نص الامتحان إلى الحافظة بنجاح</span>
         </div>
       )}
 
@@ -816,44 +816,44 @@ export function ExamMakerView({ onOpenSettings }) {
       </div>
 
       {/* Quick Demo Samples */}
-      <div className="bg-gradient-to-r from-purple-50/70 to-indigo-50/70 dark:from-purple-950/20 dark:to-indigo-950/20 rounded-2xl p-3 border border-purple-200/60 dark:border-purple-500/20 space-y-2">
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-700/60 space-y-2.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-purple-900 dark:text-purple-300 flex items-center gap-1.5">
+          <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
             <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span>نماذج اختبارات جاهزة للتجربة الفورية:</span>
+            <span>نماذج امتحانات قياسية للمعاينة والتجربة:</span>
           </span>
-          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">جاهز للطباعة</span>
+          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold bg-purple-50 dark:bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-500/20">جاهز للطباعة</span>
         </div>
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => loadSample('arabic')}
-            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] font-semibold hover:bg-purple-100 dark:hover:bg-purple-500/20 transition active:scale-95 cursor-pointer shadow-xs"
+            className="px-3 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold hover:border-purple-500/50 dark:hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-xs"
           >
-            📖 عربي
+            اللغة العربية
           </button>
           <button
             onClick={() => loadSample('science')}
-            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] font-semibold hover:bg-purple-100 dark:hover:bg-purple-500/20 transition active:scale-95 cursor-pointer shadow-xs"
+            className="px-3 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold hover:border-purple-500/50 dark:hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-xs"
           >
-            🔬 علوم
+            العلوم
           </button>
           <button
             onClick={() => loadSample('math')}
-            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] font-semibold hover:bg-purple-100 dark:hover:bg-purple-500/20 transition active:scale-95 cursor-pointer shadow-xs"
+            className="px-3 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold hover:border-purple-500/50 dark:hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-xs"
           >
-            📐 رياضيات
+            الرياضيات
           </button>
           <button
             onClick={() => loadSample('english')}
-            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] font-semibold hover:bg-purple-100 dark:hover:bg-purple-500/20 transition active:scale-95 cursor-pointer shadow-xs"
+            className="px-3 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold hover:border-purple-500/50 dark:hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-xs"
           >
-            🔤 إنجليزي
+            اللغة الإنجليزية
           </button>
           <button
             onClick={() => loadSample('social')}
-            className="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-purple-200 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] font-semibold hover:bg-purple-100 dark:hover:bg-purple-500/20 transition active:scale-95 cursor-pointer shadow-xs"
+            className="px-3 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold hover:border-purple-500/50 dark:hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-xs"
           >
-            🌍 دراسات
+            الدراسات الاجتماعية
           </button>
         </div>
       </div>
@@ -861,7 +861,7 @@ export function ExamMakerView({ onOpenSettings }) {
       {/* Upload Question Photo */}
       <div 
         onClick={() => document.getElementById('exam-photo-upload').click()}
-        className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-400 rounded-3xl p-5 text-center bg-white dark:bg-slate-800/40 hover:bg-purple-50/20 dark:hover:bg-purple-950/10 transition cursor-pointer shadow-sm dark:shadow-none group"
+        className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-400 rounded-3xl p-5 text-center bg-white dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition cursor-pointer shadow-sm dark:shadow-none group"
       >
         <input 
           type="file" 
@@ -881,21 +881,21 @@ export function ExamMakerView({ onOpenSettings }) {
                   e.stopPropagation();
                   setImage(null);
                 }}
-                className="absolute -top-2 -left-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full shadow transition"
+                className="absolute -top-2 -left-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full shadow transition cursor-pointer"
                 title="إلغاء الصورة"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
-            <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">انقر لتغيير صورة الأسئلة 📸</p>
+            <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">انقر لاستبدال صورة الأسئلة</p>
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto group-hover:scale-110 transition">
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mx-auto group-hover:scale-105 transition">
               <Upload className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-xs text-slate-900 dark:text-white">التقط أو ارفع صورة ورقة الأسئلة لأي مادة وأي صف</h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto">يقوم الذكاء الاصطناعي بصياغتها وتنظيمها كاختبار رسمي مطبوع متوافق مع مواصفات الوزارة</p>
+            <h4 className="font-bold text-xs text-slate-900 dark:text-white">ارفع أو التقط صورة ورقة الأسئلة</h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto">تنسيق وصياغة تلقائية وفق المواصفات المعتمدة لأوراق الامتحانات المصرية</p>
           </div>
         )}
       </div>
@@ -905,23 +905,23 @@ export function ExamMakerView({ onOpenSettings }) {
         <>
           {loading && (
             <div className="p-2 rounded-2xl bg-purple-500/5 border border-purple-500/20">
-              <AdBanner label="إعلان ممول — جاري صياغة وتنظيم ورقة الامتحان الرسمية" />
+              <AdBanner label="إعلان ممول — جاري تنسيق ورقة الامتحان" />
             </div>
           )}
           <button
             onClick={handleGenerateExam}
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-purple-500/25 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-purple-600 dark:hover:bg-purple-500 text-white font-bold text-sm shadow-md active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>جارٍ صياغة امتحان {activeSubject} لـ {activeGrade}...</span>
+                <span>جارٍ تنسيق امتحان {activeSubject} لـ {activeGrade}...</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>توليد ورقة امتحان {activeSubject} الرسمية 🔥</span>
+                <span>إعداد وتنسيق ورقة الامتحان</span>
               </>
             )}
           </button>
@@ -989,7 +989,7 @@ export function ExamMakerView({ onOpenSettings }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <button
                 onClick={handlePrint}
-                className="w-full py-3.5 px-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-purple-600/25 transition active:scale-98 cursor-pointer"
+                className="w-full py-3.5 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-purple-600 dark:hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-98 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
                 <span>طباعة الامتحان / PDF (A4 رسمي)</span>
@@ -997,10 +997,10 @@ export function ExamMakerView({ onOpenSettings }) {
 
               <button
                 onClick={handleDownloadWord}
-                className="w-full py-3.5 px-3 rounded-2xl bg-[#1d5fb4] hover:bg-[#18539e] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-600/25 transition active:scale-98 cursor-pointer"
+                className="w-full py-3.5 px-3 rounded-2xl bg-[#1d5fb4] hover:bg-[#18539e] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition active:scale-98 cursor-pointer"
               >
                 <FileDown className="w-4 h-4" />
-                <span>تحميل Word (.doc) للتعديل 📝</span>
+                <span>تحميل بصيغة Word (.doc)</span>
               </button>
             </div>
           </div>

@@ -160,7 +160,7 @@ export function ExcelTableView({ onOpenSettings }) {
           <button
             onClick={handleProcessTable}
             disabled={loading}
-            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold text-sm shadow-sm active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
               <>
@@ -170,7 +170,7 @@ export function ExcelTableView({ onOpenSettings }) {
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                <span>استخراج الجدول كملف Excel 📊</span>
+                <span>استخراج وتحويل الجدول إلى Excel</span>
               </>
             )}
           </button>
@@ -187,7 +187,7 @@ export function ExcelTableView({ onOpenSettings }) {
       {savedSuccess && (
         <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-          <span>تم حفظ كشف الجدول في "مستنداتي" بنجاح!</span>
+          <span>تم حفظ كشف الجدول في «مستنداتي»</span>
         </div>
       )}
 
