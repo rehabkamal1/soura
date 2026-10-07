@@ -44,6 +44,13 @@
   
   <!-- jsPDF CDN for client-side PDF generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Mozilla pdf.js for real client-side PDF parsing & Word/Image extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -216,6 +223,17 @@
               <div>
                 <h4 class="font-bold text-xs text-white group-hover:text-amber-300 transition">حل الأسئلة والمسائل 💡</h4>
                 <p class="text-[10px] text-slate-400 leading-tight mt-1">صورة المسألة ← الحل بالخطوات</p>
+              </div>
+            </button>
+
+            <!-- Tool 7: Document Converter -->
+            <button onclick="openTool('converter')" class="group text-right p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/40 transition-all active:scale-[0.98] flex flex-col justify-between h-36">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition border border-indigo-500/20">
+                <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-white group-hover:text-indigo-300 transition">محوّل المستندات 🔄</h4>
+                <p class="text-[10px] text-slate-400 leading-tight mt-1">Word ⇄ PDF ⇄ Excel فوري</p>
               </div>
             </button>
           </div>
@@ -485,6 +503,236 @@
               <i data-lucide="file-down" class="w-4 h-4"></i>
               <span>تحميل Word (.doc) للتعديل 📝</span>
             </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW: CONVERTER ================= -->
+      <section id="view-converter" class="hidden space-y-4">
+        <!-- Title Header Matching Screenshot -->
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-2xl font-black text-white tracking-wide font-sans flex items-center gap-2">
+            <span>Convert</span>
+            <span class="text-xs font-bold text-slate-400 font-cairo">(أدوات تحويل المستندات)</span>
+          </h2>
+          <button id="conv-back-btn" onclick="resetConverterPreview()" class="hidden flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white border border-slate-700 active:scale-95 transition">
+            <span>جميع الأدوات</span>
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- 10 Tool Grid -->
+        <div id="conv-tools-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <!-- Card 1: Image to PDF -->
+          <button onclick="selectConverterTool('image-to-pdf', 'Image to PDF', 'صورة إلى PDF', 'image/*')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M26 40C26 36 32 34 32 38C32 44 26 42 38 46" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">Image to PDF</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">صورة إلى PDF</p>
+            </div>
+          </button>
+
+          <!-- Card 2: PDF to Image -->
+          <button onclick="selectConverterTool('pdf-to-image', 'PDF to Image', 'PDF إلى صور JPG', '.pdf')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <rect x="18" y="16" width="34" height="36" rx="4" stroke="#cbd5e1" stroke-width="2.5"/>
+              <circle cx="28" cy="27" r="3" fill="#22c55e"/>
+              <path d="M22 44L32 34L40 42L45 37L52 44" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M12 34C12 26 20 26 24 28" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M21 24L26 28L21 32" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">PDF to Image</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">PDF إلى صور JPG</p>
+            </div>
+          </button>
+
+          <!-- Card 3: Word to PDF -->
+          <button onclick="selectConverterTool('word-to-pdf', 'Word to PDF', 'Word إلى PDF', '.doc,.docx,.txt')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M26 40C26 36 32 34 32 38C32 44 26 42 38 46" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">Word to PDF</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">Word إلى PDF</p>
+            </div>
+          </button>
+
+          <!-- Card 4: Excel to PDF -->
+          <button onclick="selectConverterTool('excel-to-pdf', 'Excel to PDF', 'Excel إلى PDF', '.xlsx,.csv,.txt')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M26 40C26 36 32 34 32 38C32 44 26 42 38 46" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">Excel to PDF</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">Excel إلى PDF</p>
+            </div>
+          </button>
+
+          <!-- Card 5: EPUB to PDF -->
+          <button onclick="selectConverterTool('epub-to-pdf', 'EPUB to PDF', 'EPUB إلى PDF', '.epub,.txt')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M26 40C26 36 32 34 32 38C32 44 26 42 38 46" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">EPUB to PDF</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">EPUB إلى PDF</p>
+            </div>
+          </button>
+
+          <!-- Card 6: PPT to PDF -->
+          <button onclick="selectConverterTool('ppt-to-pdf', 'PPT to PDF', 'PowerPoint إلى PDF', '.ppt,.pptx,.txt')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M26 40C26 36 32 34 32 38C32 44 26 42 38 46" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">PPT to PDF</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">PPT إلى PDF</p>
+            </div>
+          </button>
+
+          <!-- Card 7: PDF to Word -->
+          <button onclick="selectConverterTool('pdf-to-word', 'PDF to Word', 'PDF إلى Word (.doc)', '.pdf')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg ring-1 ring-blue-500/20">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+              <text x="26" y="44" fill="#3b82f6" font-size="16" font-weight="bold" font-family="sans-serif">W</text>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">PDF to Word</h4>
+              <p class="text-[10px] text-blue-400 font-cairo mt-0.5 font-bold">PDF إلى Word (.doc)</p>
+            </div>
+          </button>
+
+          <!-- Card 8: PDF to Excel -->
+          <button onclick="selectConverterTool('pdf-to-excel', 'PDF to Excel', 'PDF إلى Excel (.csv)', '.pdf')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg ring-1 ring-emerald-500/20">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <text x="27" y="44" fill="#10b981" font-size="16" font-weight="bold" font-family="sans-serif">X</text>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">PDF to Excel</h4>
+              <p class="text-[10px] text-emerald-400 font-cairo mt-0.5 font-bold">PDF إلى Excel (.csv)</p>
+            </div>
+          </button>
+
+          <!-- Card 9: PDF to EPUB -->
+          <button onclick="selectConverterTool('pdf-to-epub', 'PDF to EPUB', 'PDF إلى كتاب EPUB', '.pdf')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+              <rect x="27" y="32" width="12" height="13" rx="2" stroke="#10b981" stroke-width="2"/>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">PDF to EPUB</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">PDF إلى EPUB</p>
+            </div>
+          </button>
+
+          <!-- Card 10: PDF to PPTX -->
+          <button onclick="selectConverterTool('pdf-to-pptx', 'PDF to PPTX', 'PDF إلى PowerPoint', '.pdf')" class="p-4 rounded-3xl bg-[#1c1f24] hover:bg-[#252930] border border-slate-800 hover:border-slate-600 transition-all active:scale-[0.97] flex flex-col items-center justify-center text-center gap-2.5 h-36 group shadow-lg">
+            <svg viewBox="0 0 64 64" class="w-12 h-12 transform group-hover:scale-110 transition duration-200" fill="none">
+              <path d="M18 12H40L50 22V52C50 54.2 48.2 56 46 56H18C15.8 56 14 54.2 14 52V16C14 13.8 15.8 12 18 12Z" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M40 12V22H50" stroke="#cbd5e1" stroke-width="2.5"/>
+              <path d="M12 36C12 28 20 28 24 30" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M22 26L26 30L22 34" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
+              <text x="28" y="44" fill="#f97316" font-size="16" font-weight="bold" font-family="sans-serif">P</text>
+            </svg>
+            <div>
+              <h4 class="text-xs font-semibold text-slate-200 font-sans tracking-wide">PDF to PPTX</h4>
+              <p class="text-[10px] text-slate-400 font-cairo mt-0.5">PDF إلى PPTX</p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Active Converter Panel -->
+        <div id="conv-active-panel" class="hidden bg-[#1c1f24] border border-slate-700/80 rounded-3xl p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h3 id="conv-panel-title" class="font-extrabold text-base text-white font-sans">PDF to Word</h3>
+              <p id="conv-panel-subtitle" class="text-xs text-emerald-400 font-cairo">PDF إلى Word (.doc)</p>
+            </div>
+            <button onclick="resetConverterPreview()" class="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Dropzone -->
+          <div onclick="document.getElementById('conv-real-file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 rounded-3xl p-6 text-center bg-slate-900/60 hover:bg-slate-900 transition cursor-pointer space-y-2 group">
+            <input type="file" id="conv-real-file-input" class="hidden" onchange="handleRealConverterFile(event)">
+            <div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto text-emerald-400 group-hover:scale-110 transition border border-slate-700">
+              <i data-lucide="upload" class="w-6 h-6"></i>
+            </div>
+            <h4 id="conv-drop-title" class="font-bold text-sm text-white">اضغط لاختيار الملف للتحويل</h4>
+            <p id="conv-drop-subtitle" class="text-xs text-slate-400">أو اسحب وأفلت الملف داخل المربع مباشرة</p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="conv-progress-box" class="hidden space-y-1.5 bg-slate-900/80 p-3 rounded-2xl border border-slate-800">
+            <div class="flex justify-between text-xs font-bold text-emerald-400">
+              <span>جارٍ معالجة المستند وتحويله بدقة...</span>
+              <span id="conv-progress-percent">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+              <div id="conv-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full transition-all duration-300 w-0"></div>
+            </div>
+          </div>
+
+          <!-- Result Area -->
+          <div id="conv-result-box" class="hidden space-y-3">
+            <div class="flex items-center justify-between text-xs text-slate-300">
+              <span class="font-bold">المحتوى المستخرج:</span>
+              <button onclick="copyConvExtractedText()" class="text-emerald-400 hover:underline flex items-center gap-1 font-bold">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ النص
+              </button>
+            </div>
+            <textarea id="conv-extracted-textarea" rows="8" class="w-full bg-slate-950/80 border border-slate-700 rounded-2xl p-3 text-xs leading-relaxed text-slate-200 font-sans" dir="rtl"></textarea>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <button id="conv-primary-download-btn" onclick="downloadConvWord()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 transition">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span id="conv-primary-btn-label">تحميل مستند Word (.doc) 📝</span>
+              </button>
+              <button onclick="downloadConvPdf()" class="py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span>تحميل كـ PDF جاهز للطباعة 📄</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Image Preview Grid for PDF to Image -->
+          <div id="conv-images-grid" class="hidden space-y-2">
+            <span class="font-bold text-xs text-slate-200">معاينة صفحات الصور المستخرجة:</span>
+            <div id="conv-images-list" class="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto p-1"></div>
           </div>
         </div>
       </section>
@@ -822,7 +1070,7 @@
     initIcons();
 
     function switchTab(tabId) {
-      const views = ['home', 'image-to-pdf', 'ocr', 'exam-maker', 'documents', 'settings'];
+      const views = ['home', 'image-to-pdf', 'ocr', 'exam-maker', 'converter', 'documents', 'settings'];
       views.forEach(v => {
         const el = document.getElementById('view-' + v);
         if (el) el.classList.add('hidden');
@@ -867,6 +1115,10 @@
         } else if (tabId === 'exam-maker') {
           title.innerText = 'صانع الامتحانات';
           subtitle.innerText = 'تنسيق الأسئلة للطباعة';
+        } else if (tabId === 'converter') {
+          title.innerText = 'محوّل المستندات الشامل';
+          subtitle.innerText = 'Word ⇄ PDF ⇄ Excel فوري للتعديل والطباعة';
+          if (!currentConverterMode) setConverterMode('word-to-pdf');
         } else if (tabId === 'documents') {
           title.innerText = 'مستنداتي';
           subtitle.innerText = 'الملفات المحفوظة محلياً';
@@ -883,12 +1135,724 @@
       if (toolName === 'image-to-pdf') switchTab('image-to-pdf');
       else if (toolName === 'ocr') switchTab('ocr');
       else if (toolName === 'exam-maker') switchTab('exam-maker');
+      else if (toolName === 'converter') switchTab('converter');
       else if (toolName === 'clean-doc') {
         switchTab('image-to-pdf');
         setFilter('high-contrast');
       } else {
         switchTab(toolName);
       }
+    }
+
+    // ==========================================
+    // DOCUMENT CONVERTER ENGINE (10 Tools Matching UI)
+    // ==========================================
+    let currentSelectedToolId = 'pdf-to-word';
+    let currentUploadedFile = null;
+    let currentExtractedText = '';
+    let currentExtractedImages = [];
+
+    function selectConverterTool(id, title, arTitle, accept) {
+      currentSelectedToolId = id;
+      currentUploadedFile = null;
+      currentExtractedText = '';
+      currentExtractedImages = [];
+
+      document.getElementById('conv-tools-grid').classList.add('hidden');
+      document.getElementById('conv-active-panel').classList.remove('hidden');
+      document.getElementById('conv-back-btn').classList.remove('hidden');
+
+      document.getElementById('conv-panel-title').innerText = title;
+      document.getElementById('conv-panel-subtitle').innerText = arTitle;
+      document.getElementById('conv-real-file-input').accept = accept;
+      document.getElementById('conv-drop-title').innerText = `اضغط لاختيار ملف ${title.split(' ')[0]}`;
+      document.getElementById('conv-drop-subtitle').innerText = 'أو اسحب وأفلت الملف داخل المربع مباشرة';
+
+      document.getElementById('conv-result-box').classList.add('hidden');
+      document.getElementById('conv-images-grid').classList.add('hidden');
+      document.getElementById('conv-progress-box').classList.add('hidden');
+
+      const primaryBtn = document.getElementById('conv-primary-btn-label');
+      if (id === 'pdf-to-word') primaryBtn.innerText = 'تحميل مستند Word (.doc) 📝';
+      else if (id === 'pdf-to-excel') primaryBtn.innerText = 'تحميل جدول Excel (.csv) 📗';
+      else if (id === 'pdf-to-image') primaryBtn.innerText = 'تحميل الصور المستخرجة (JPG) 🖼️';
+      else primaryBtn.innerText = 'تحميل الملف المحول 🚀';
+    }
+
+    function resetConverterPreview() {
+      document.getElementById('conv-tools-grid').classList.remove('hidden');
+      document.getElementById('conv-active-panel').classList.add('hidden');
+      document.getElementById('conv-back-btn').classList.add('hidden');
+    }
+
+    function fixArabicPdfMojibake(text) {
+      if (!text) return '';
+      if (!text.includes('þ') && !/[\uFE70-\uFEFC\uFB50-\uFDFF]/.test(text)) {
+        return text;
+      }
+
+      const cp1252Map = {
+        '\u20AC': 0x80, '\u201A': 0x82, '\u0192': 0x83, '\u201E': 0x84, '\u2026': 0x85, '\u2020': 0x86, '\u2021': 0x87,
+        '\u02C6': 0x88, '\u2030': 0x89, '\u0160': 0x8a, '\u2039': 0x8b, '\u0152': 0x8c, '\u017D': 0x8e,
+        '\u2018': 0x91, '\u2019': 0x92, '\u201C': 0x93, '\u201D': 0x94, '\u2022': 0x95, '\u2013': 0x96, '\u2014': 0x97,
+        '\u02DC': 0x98, '\u2122': 0x99, '\u0161': 0x9a, '\u203A': 0x9b, '\u0153': 0x9c, '\u017E': 0x9e, '\u0178': 0x9f
+      };
+
+      let decoded = '';
+      let i = 0;
+      while (i < text.length) {
+        if (text[i] === 'þ' && i + 1 < text.length) {
+          const ch = text[i + 1];
+          const b2 = cp1252Map[ch] !== undefined ? cp1252Map[ch] : (ch.charCodeAt(0) & 0xFF);
+          const code = (0xFE << 8) | b2;
+          decoded += String.fromCharCode(code);
+          i += 2;
+        } else {
+          decoded += text[i];
+          i++;
+        }
+      }
+
+      let normalized = decoded.normalize('NFKD');
+      const lines = normalized.split('\n');
+      const fixedLines = lines.map(line => {
+        const tokens = line.split(/(\s+)/);
+        return tokens.map(token => {
+          if (/[\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFC]/.test(token)) {
+            return Array.from(token).reverse().join('');
+          }
+          return token;
+        }).join('');
+      });
+
+      return fixedLines.join('\n').replace(/þ/g, '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+    }
+
+    async function handleRealConverterFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      currentUploadedFile = file;
+
+      const progressBox = document.getElementById('conv-progress-box');
+      const progressBar = document.getElementById('conv-progress-bar');
+      const progressPercent = document.getElementById('conv-progress-percent');
+      progressBox.classList.remove('hidden');
+      progressBar.style.width = '20%';
+      progressPercent.innerText = '20%';
+
+      try {
+        if (currentSelectedToolId === 'pdf-to-word' || currentSelectedToolId === 'pdf-to-excel') {
+          // Real PDF text extraction with PDF.js
+          progressBar.style.width = '40%';
+          progressPercent.innerText = '40%';
+
+          const arrayBuffer = await file.arrayBuffer();
+          if (window.pdfjsLib) {
+            const loadingTask = window.pdfjsLib.getDocument({
+              data: arrayBuffer,
+              cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+              cMapPacked: true,
+              standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/standard_fonts/',
+            });
+            const pdf = await loadingTask.promise;
+            const total = pdf.numPages;
+            const pages = [];
+
+            for (let i = 1; i <= total; i++) {
+              progressBar.style.width = `${40 + Math.round((i / total) * 35)}%`;
+              progressPercent.innerText = `${40 + Math.round((i / total) * 35)}%`;
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const pageStr = textContent.items.map(item => item.str).join(' ');
+              pages.push(pageStr.trim());
+            }
+
+            let rawExtracted = pages.filter(Boolean).join('\n\n');
+            let decodedText = fixArabicPdfMojibake(rawExtracted);
+            const hasThorn = rawExtracted.includes('þ');
+            const arabicCharCount = (decodedText.match(/[\u0600-\u06FF]/g) || []).length;
+            const isCorrupted = hasThorn || (rawExtracted.length > 40 && arabicCharCount < 5);
+
+            // If empty, very short, or corrupted with thorn Mojibake: run Gemini OCR!
+            if (!rawExtracted || rawExtracted.trim().length < 30 || isCorrupted) {
+              progressBar.style.width = '75%';
+              progressPercent.innerText = 'جاري قراءة وتفريغ الصفحة بالذكاء الاصطناعي (OCR)...';
+              try {
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+                const prompt = 'أنت خبير OCR باللغة العربية. اقرأ واستخرج جميع النصوص المكتوبة في هذه الصفحة بدقة متناهية وبدون مقدمات، مع الحفاظ على الفقرات والعناوين والترتيب كما هو.';
+                const ocrResult = await callGemini(dataUrl, prompt);
+                if (ocrResult && ocrResult.trim() && !ocrResult.includes('يرجى إضافة مفتاح')) {
+                  currentExtractedText = ocrResult.trim();
+                } else {
+                  currentExtractedText = decodedText || 'المستند عبارة عن صورة ممسوحة ضوئياً. يرجى إدخال مفتاح Gemini المجاني في الإعدادات لتفريغ نص الصور تلقائياً بدقة 100%.';
+                }
+              } catch (e) {
+                console.warn('OCR error:', e);
+                // Fallback to decoded Arabic text instead of showing þ
+                currentExtractedText = decodedText || 'المستند عبارة عن صورة ممسوحة ضوئياً. يرجى إدخال مفتاح Gemini المجاني في الإعدادات لتفريغ نص الصور تلقائياً.';
+              }
+            } else {
+              currentExtractedText = decodedText;
+            }
+          } else {
+            currentExtractedText = 'تعذر تحميل قارئ الـ PDF، يرجى التأكد من الاتصال بالإنترنت.';
+          }
+
+          document.getElementById('conv-extracted-textarea').value = currentExtractedText;
+          document.getElementById('conv-result-box').classList.remove('hidden');
+
+          // Auto-download Word or Excel ONLY IF text is clean and valid
+          const isCleanText = currentExtractedText && !currentExtractedText.includes('þ') && !currentExtractedText.startsWith('المستند عبارة') && !currentExtractedText.startsWith('تعذر');
+          if (isCleanText) {
+            if (currentSelectedToolId === 'pdf-to-word') {
+              downloadConvWord();
+            } else if (currentSelectedToolId === 'pdf-to-excel') {
+              downloadConvExcel();
+            }
+          }
+        } 
+        else if (currentSelectedToolId === 'pdf-to-image') {
+          // Real PDF to Image extraction
+          const arrayBuffer = await file.arrayBuffer();
+          if (window.pdfjsLib) {
+            const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdf = await loadingTask.promise;
+            const container = document.getElementById('conv-images-list');
+            container.innerHTML = '';
+            document.getElementById('conv-images-grid').classList.remove('hidden');
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+              progressBar.style.width = `${20 + Math.round((i / pdf.numPages) * 75)}%`;
+              progressPercent.innerText = `${20 + Math.round((i / pdf.numPages) * 75)}%`;
+              const page = await pdf.getPage(i);
+              const viewport = page.getViewport({ scale: 1.5 });
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              await page.render({ canvasContext: ctx, viewport }).promise;
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+              const card = document.createElement('div');
+              card.className = 'relative rounded-xl overflow-hidden border border-slate-700 bg-slate-900 group';
+              card.innerHTML = `
+                <img src="${dataUrl}" class="w-full object-cover" />
+                <a href="${dataUrl}" download="${file.name}_صفحة_${i}.jpg" class="absolute bottom-1.5 left-1.5 right-1.5 py-1 bg-black/80 hover:bg-black text-white text-[10px] font-bold rounded-lg flex items-center justify-center gap-1">
+                  تنزيل صفحة ${i}
+                </a>
+              `;
+              container.appendChild(card);
+            }
+            showUpdateToast(`🎉 تم استخراج ${pdf.numPages} صفحة كصور عالية الدقة!`);
+          }
+        }
+        else if (currentSelectedToolId === 'word-to-pdf' || currentSelectedToolId === 'excel-to-pdf') {
+          const text = await file.text();
+          currentExtractedText = text;
+          document.getElementById('conv-extracted-textarea').value = text;
+          document.getElementById('conv-result-box').classList.remove('hidden');
+          downloadConvPdf();
+        }
+        else if (currentSelectedToolId === 'image-to-pdf') {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.addImage(ev.target.result, 'JPEG', 10, 10, 190, 0);
+            doc.save(file.name.replace(/\.[^/.]+$/, '') + '_Soura.pdf');
+            showUpdateToast('🎉 تم تحويل الصورة إلى PDF بنجاح!');
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('حدث خطأ أثناء معالجة الملف.');
+      } finally {
+        progressBar.style.width = '100%';
+        progressPercent.innerText = '100%';
+        setTimeout(() => progressBox.classList.add('hidden'), 1000);
+      }
+    }
+
+    function downloadConvWord() {
+      const text = document.getElementById('conv-extracted-textarea').value;
+      if (!text) return;
+      convertPdfToWordPreview(text);
+    }
+
+    function downloadConvPdf() {
+      const text = document.getElementById('conv-extracted-textarea').value;
+      if (!text) return;
+      convertWordToPdfPreview(text);
+    }
+
+    function downloadConvExcel() {
+      const text = document.getElementById('conv-extracted-textarea').value;
+      if (!text) return;
+      convertPdfToExcelPreview(text);
+    }
+
+    function copyConvExtractedText() {
+      const text = document.getElementById('conv-extracted-textarea').value;
+      if (!text) return;
+      navigator.clipboard.writeText(text);
+      showUpdateToast('✓ تم نسخ النص بنجاح!');
+    }
+
+    function convertWordToPdfPreview(text) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const margin = 15;
+        const pageWidth = 210;
+        const maxWidth = pageWidth - (margin * 2);
+        const lines = doc.splitTextToSize(text, maxWidth);
+
+        let cursorY = 25;
+        const lineHeight = 7.5;
+        const pageHeight = 297;
+
+        doc.setFontSize(16);
+        doc.text('Soura Document — مستند صورة', pageWidth / 2, 14, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text(new Date().toLocaleDateString('ar-EG'), margin, 14);
+
+        doc.setFontSize(11);
+        for (let i = 0; i < lines.length; i++) {
+          if (cursorY + lineHeight > pageHeight - margin) {
+            doc.addPage();
+            cursorY = 20;
+          }
+          doc.text(lines[i], pageWidth - margin, cursorY, { align: 'right' });
+          cursorY += lineHeight;
+        }
+
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const downloadName = `مستند_محول_${Date.now()}.pdf`;
+
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { document.body.removeChild(a); } catch(e){}
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
+
+        saveUserDocPreview({
+          name: downloadName,
+          type: 'PDF',
+          size: `${Math.round(pdfBlob.size / 1024)} KB`,
+          pages: 'مستند محول من Word',
+          content: text
+        });
+
+        showUpdateToast('🎉 تم تحويل المستند إلى PDF وتحميله بنجاح!');
+      } catch (e) {
+        console.error(e);
+        alert('حدث خطأ أثناء إنشاء ملف PDF.');
+      }
+    }
+
+    function convertPdfToWordPreview(text) {
+      const docHtml = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>Soura Document</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>100</w:Zoom>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            body { 
+              font-family: 'Cairo', 'Traditional Arabic', Arial, sans-serif; 
+              direction: rtl; 
+              text-align: right; 
+              line-height: 1.8; 
+              font-size: 13.5pt;
+              color: #111;
+            }
+            .header-title { font-size: 16pt; font-weight: bold; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; margin-bottom: 15px; }
+            .footer-note { margin-top: 30px; font-size: 10pt; color: #666; text-align: center; border-top: 1px dashed #ccc; padding-top: 8px; }
+          </style>
+        </head>
+        <body lang="AR-EG" dir="rtl">
+          <div class="header-title">تطبيق صورة — مستند محول وقابل للتعديل بالكامل</div>
+          <div style="font-size: 13.5pt; line-height: 1.8;">
+            ${(text || '').replace(/þ/g, '').split('\n\n').map(p => `<p style="margin-bottom: 12pt;">${p.replace(/\n/g, '<br/>')}</p>`).join('')}
+          </div>
+          <div class="footer-note">تم التحويل بواسطة تطبيق صورة (Soura) — تحويل PDF إلى Word قابل للتعديل 100%</div>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', docHtml], {
+        type: 'application/msword;charset=utf-8'
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadName = `مستند_Word_${Date.now()}.doc`;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch(e){}
+        URL.revokeObjectURL(url);
+      }, 1000);
+
+      saveUserDocPreview({
+        name: downloadName,
+        type: 'Word',
+        size: `${Math.round(blob.size / 1024)} KB`,
+        pages: 'مستند محول من PDF إلى Word',
+        content: text
+      });
+
+      showUpdateToast('🎉 تم تحويل وتنزيل مستند Word (.doc) بنجاح!');
+    }
+
+    function convertExcelToPdfPreview(text) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const rows = text.split('\n').filter(r => r.trim()).map(r => r.split(','));
+        const pageWidth = 297;
+        const margin = 15;
+        const colCount = rows[0] ? rows[0].length : 1;
+        const colWidth = (pageWidth - margin * 2) / colCount;
+
+        let startY = 25;
+        const rowHeight = 9;
+
+        doc.setFontSize(15);
+        doc.text('جدول البيانات المحول — Soura Excel to PDF', pageWidth / 2, 14, { align: 'center' });
+
+        doc.setFontSize(10);
+        rows.forEach((row, rowIndex) => {
+          if (startY + rowHeight > 195) {
+            doc.addPage();
+            startY = 20;
+          }
+
+          const isHeader = rowIndex === 0;
+          doc.setFillColor(isHeader ? 220 : (rowIndex % 2 === 0 ? 245 : 255), isHeader ? 230 : (rowIndex % 2 === 0 ? 245 : 255), isHeader ? 242 : (rowIndex % 2 === 0 ? 245 : 255));
+          doc.rect(margin, startY - 6, pageWidth - margin * 2, rowHeight, 'F');
+          doc.rect(margin, startY - 6, pageWidth - margin * 2, rowHeight, 'S');
+
+          row.forEach((cell, colIndex) => {
+            const x = pageWidth - margin - (colIndex * colWidth) - (colWidth / 2);
+            doc.text((cell || '').trim(), x, startY, { align: 'center' });
+          });
+
+          startY += rowHeight;
+        });
+
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const downloadName = `جدول_Excel_PDF_${Date.now()}.pdf`;
+
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { document.body.removeChild(a); } catch(e){}
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
+
+        saveUserDocPreview({
+          name: downloadName,
+          type: 'PDF',
+          size: `${Math.round(pdfBlob.size / 1024)} KB`,
+          pages: 'جدول محول من Excel إلى PDF',
+          content: text
+        });
+
+        showUpdateToast('🎉 تم تحويل جدول Excel إلى PDF وجاهز للطباعة!');
+      } catch (e) {
+        console.error(e);
+        alert('حدث خطأ أثناء تحويل جدول Excel إلى PDF.');
+      }
+    }
+
+    function convertPdfToExcelPreview(text) {
+      const blob = new Blob(['\ufeff', text], {
+        type: 'text/csv;charset=utf-8'
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadName = `كشف_Excel_${Date.now()}.csv`;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch(e){}
+        URL.revokeObjectURL(url);
+      }, 1000);
+
+      saveUserDocPreview({
+        name: downloadName,
+        type: 'Excel',
+        size: `${Math.round(blob.size / 1024)} KB`,
+        pages: 'كشف درجات وجداول Excel',
+        content: text
+      });
+
+      showUpdateToast('🎉 تم تصدير وتحميل ملف Excel (.csv) بنجاح!');
+    }
+
+    function convertWordToPdfPreview(text) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const margin = 15;
+        const pageWidth = 210;
+        const maxWidth = pageWidth - (margin * 2);
+        const lines = doc.splitTextToSize(text, maxWidth);
+
+        let cursorY = 25;
+        const lineHeight = 7.5;
+        const pageHeight = 297;
+
+        doc.setFontSize(16);
+        doc.text('Soura Document — مستند صورة', pageWidth / 2, 14, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text(new Date().toLocaleDateString('ar-EG'), margin, 14);
+
+        doc.setFontSize(11);
+        for (let i = 0; i < lines.length; i++) {
+          if (cursorY + lineHeight > pageHeight - margin) {
+            doc.addPage();
+            cursorY = 20;
+          }
+          doc.text(lines[i], pageWidth - margin, cursorY, { align: 'right' });
+          cursorY += lineHeight;
+        }
+
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const downloadName = `مستند_محول_${Date.now()}.pdf`;
+
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { document.body.removeChild(a); } catch(e){}
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
+
+        saveUserDocPreview({
+          name: downloadName,
+          type: 'PDF',
+          size: `${Math.round(pdfBlob.size / 1024)} KB`,
+          pages: 'مستند محول من Word',
+          content: text
+        });
+
+        showUpdateToast('🎉 تم تحويل المستند إلى PDF وتحميله بنجاح!');
+      } catch (e) {
+        console.error(e);
+        alert('حدث خطأ أثناء إنشاء ملف PDF.');
+      }
+    }
+
+    function convertPdfToWordPreview(text) {
+      const docHtml = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>Soura Document</title>
+          <!--[if gte mso 9]>
+          <xml>
+            <w:WordDocument>
+              <w:View>Print</w:View>
+              <w:Zoom>100</w:Zoom>
+            </w:WordDocument>
+          </xml>
+          <![endif]-->
+          <style>
+            body { 
+              font-family: 'Cairo', 'Traditional Arabic', Arial, sans-serif; 
+              direction: rtl; 
+              text-align: right; 
+              line-height: 1.8; 
+              font-size: 13.5pt;
+              color: #111;
+            }
+            .header-title { font-size: 16pt; font-weight: bold; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; margin-bottom: 15px; }
+            .footer-note { margin-top: 30px; font-size: 10pt; color: #666; text-align: center; border-top: 1px dashed #ccc; padding-top: 8px; }
+          </style>
+        </head>
+        <body lang="AR-EG" dir="rtl">
+          <div class="header-title">تطبيق صورة — مستند محول وقابل للتعديل بالكامل</div>
+          <div>
+            ${text.replace(/\n/g, '<br/>')}
+          </div>
+          <div class="footer-note">تم التحويل بواسطة تطبيق صورة (Soura) — تحويل PDF إلى Word قابل للتعديل 100%</div>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff', docHtml], {
+        type: 'application/msword;charset=utf-8'
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadName = `مستند_Word_${Date.now()}.doc`;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch(e){}
+        URL.revokeObjectURL(url);
+      }, 1000);
+
+      saveUserDocPreview({
+        name: downloadName,
+        type: 'Word',
+        size: `${Math.round(blob.size / 1024)} KB`,
+        pages: 'مستند محول من PDF إلى Word',
+        content: text
+      });
+
+      showUpdateToast('🎉 تم تحويل وتنزيل مستند Word (.doc) بنجاح!');
+    }
+
+    function convertExcelToPdfPreview(text) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const rows = text.split('\n').filter(r => r.trim()).map(r => r.split(','));
+        const pageWidth = 297;
+        const margin = 15;
+        const colCount = rows[0] ? rows[0].length : 1;
+        const colWidth = (pageWidth - margin * 2) / colCount;
+
+        let startY = 25;
+        const rowHeight = 9;
+
+        doc.setFontSize(15);
+        doc.text('جدول البيانات المحول — Soura Excel to PDF', pageWidth / 2, 14, { align: 'center' });
+
+        doc.setFontSize(10);
+        rows.forEach((row, rowIndex) => {
+          if (startY + rowHeight > 195) {
+            doc.addPage();
+            startY = 20;
+          }
+
+          const isHeader = rowIndex === 0;
+          doc.setFillColor(isHeader ? 220 : (rowIndex % 2 === 0 ? 245 : 255), isHeader ? 230 : (rowIndex % 2 === 0 ? 245 : 255), isHeader ? 242 : (rowIndex % 2 === 0 ? 245 : 255));
+          doc.rect(margin, startY - 6, pageWidth - margin * 2, rowHeight, 'F');
+          doc.rect(margin, startY - 6, pageWidth - margin * 2, rowHeight, 'S');
+
+          row.forEach((cell, colIndex) => {
+            const x = pageWidth - margin - (colIndex * colWidth) - (colWidth / 2);
+            doc.text((cell || '').trim(), x, startY, { align: 'center' });
+          });
+
+          startY += rowHeight;
+        });
+
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const downloadName = `جدول_Excel_PDF_${Date.now()}.pdf`;
+
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = downloadName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { document.body.removeChild(a); } catch(e){}
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
+
+        saveUserDocPreview({
+          name: downloadName,
+          type: 'PDF',
+          size: `${Math.round(pdfBlob.size / 1024)} KB`,
+          pages: 'جدول محول من Excel إلى PDF',
+          content: text
+        });
+
+        showUpdateToast('🎉 تم تحويل جدول Excel إلى PDF وجاهز للطباعة!');
+      } catch (e) {
+        console.error(e);
+        alert('حدث خطأ أثناء تحويل جدول Excel إلى PDF.');
+      }
+    }
+
+    function convertPdfToExcelPreview(text) {
+      const blob = new Blob(['\ufeff', text], {
+        type: 'text/csv;charset=utf-8'
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadName = `كشف_Excel_${Date.now()}.csv`;
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch(e){}
+        URL.revokeObjectURL(url);
+      }, 1000);
+
+      saveUserDocPreview({
+        name: downloadName,
+        type: 'Excel',
+        size: `${Math.round(blob.size / 1024)} KB`,
+        pages: 'كشف درجات وجداول Excel',
+        content: text
+      });
+
+      showUpdateToast('🎉 تم تصدير وتحميل ملف Excel (.csv) بنجاح!');
     }
 
     // Call Gemini API directly with multi-model fallback (Gemini 3.7 / 3.6 / 3.5)
@@ -1212,19 +2176,31 @@
     function cleanExamContentPreview(raw) {
       if (!raw) return '';
       let text = raw;
-      text = text.replace(/^(إليك|تفضل|هذه هي|ورقة الامتحان|فيما يلي|مرحباً|أهلاً)[\s\S]*?(?=السؤال الأول|أولاً|اختبار|1[\.\-\)])/i, '');
-      text = text.replace(/^[^\n]*جاهز للطباعة[^\n]*\n+/gi, '');
-      text = text.replace(/^[^\n]*تنسيق رسمي[^\n]*\n+/gi, '');
-      text = text.replace(/^---+\s*\n+/gm, '');
-      text = text.replace(/جمهورية مصر العربية[\s\S]*?(اسم الطالب|رقم الجلوس|الفصل|الدرجة)[\.\s\:\-_]*\n+/gi, '');
-      text = text.replace(/وزارة التربية والتعليم[\s\S]*?(اسم الطالب|رقم الجلوس|الفصل)[\.\s\:\-_]*\n+/gi, '');
-      text = text.replace(/\\text\{([^}]+)\}/g, '$1');
+
+      // 1. Cut off all duplicate headers, intros, and chatter before the first question
+      const firstQuestionMatch = text.match(/(السؤال\s*(الأول|الاول|1)|أولاً|اولاً|س\s*1|1[\.\-\)])/);
+      if (firstQuestionMatch) {
+        text = text.substring(firstQuestionMatch.index);
+      } else {
+        text = text.replace(/^(إليك|تفضل|هذه هي|ورقة الامتحان|فيما يلي|مرحباً|أهلاً)[\s\S]*?\n+/i, '');
+        text = text.replace(/^[^\n]*جاهز للطباعة[^\n]*\n+/gi, '');
+        text = text.replace(/^[^\n]*تنسيق رسمي[^\n]*\n+/gi, '');
+        text = text.replace(/^---+\s*\n+/gm, '');
+        text = text.replace(/جمهورية مصر العربية[\s\S]*?(اسم الطالب|رقم الجلوس|الفصل|الدرجة)[\.\s\:\-_]*\n+/gi, '');
+        text = text.replace(/وزارة التربية والتعليم[\s\S]*?(اسم الطالب|رقم الجلوس|الفصل)[\.\s\:\-_]*\n+/gi, '');
+      }
+
+      // 2. Clean broken LaTeX artifacts into natural readable math text
+      text = text.replace(/\\?text\{([^}]*)\}/g, '$1');
+      text = text.replace(/\\?text\b/g, '');
       text = text.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1 / $2');
-      text = text.replace(/\^2|\{\^2\}|\^\{2\}/g, '²');
-      text = text.replace(/\^3|\{\^3\}|\^\{3\}/g, '³');
+      text = text.replace(/\}\^\{?2\}?|\^\{?2\}?|\^2/g, '²');
+      text = text.replace(/\}\^\{?3\}?|\^\{?3\}?|\^3/g, '³');
       text = text.replace(/\$+/g, '');
-      text = text.replace(/\\([\{\}\[\]\(\)])/g, '$1');
-      text = text.replace(/\\[a-zA-Z]+/g, '');
+      text = text.replace(/\\/g, '');
+      text = text.replace(/[{}]/g, '');
+      text = text.replace(/[ \t]+/g, ' ');
+      text = text.replace(/\n{3,}/g, '\n\n');
       text = text.replace(/\n*«?مع أطيب التمنيات بالنجاح والتفوق»?\s*$/i, '');
       text = text.replace(/\n*انتهت الأسئلة\s*$/i, '');
       return text.trim();

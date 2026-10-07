@@ -11,6 +11,7 @@ import { CleanSheetView } from './views/CleanSheetView';
 import { ExcelTableView } from './views/ExcelTableView';
 import { SolverView } from './views/SolverView';
 import { DocumentsView } from './views/DocumentsView';
+import { ConverterView } from './views/ConverterView';
 import { SettingsView } from './views/SettingsView';
 
 export default function App() {
@@ -93,7 +94,7 @@ export default function App() {
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
     if (tabId === 'home') setCurrentView('home');
-    else if (tabId === 'tools') setCurrentView('image-to-pdf');
+    else if (tabId === 'tools') setCurrentView('converter');
     else if (tabId === 'documents') setCurrentView('documents');
     else if (tabId === 'settings') setCurrentView('settings');
   };
@@ -142,6 +143,7 @@ export default function App() {
           {currentView === 'clean-sheet' && <CleanSheetView darkMode={darkMode} />}
           {currentView === 'excel' && <ExcelTableView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
           {currentView === 'solver' && <SolverView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
+          {currentView === 'converter' && <ConverterView darkMode={darkMode} />}
           {currentView === 'documents' && <DocumentsView darkMode={darkMode} />}
           {currentView === 'settings' && (
             <SettingsView darkMode={darkMode} toggleDarkMode={toggleDarkMode} />

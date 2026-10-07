@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Sparkles, FileText, Type, HelpCircle, BookOpen, 
   Table, UploadCloud, Clock, Eye, Download, CheckCircle, 
-  ArrowLeft, BrainCircuit, Users
+  ArrowLeft, BrainCircuit, Users, ArrowLeftRight
 } from 'lucide-react';
 
 export function HomeView({ onSelectTool, onSelectTab }) {
@@ -54,6 +54,14 @@ export function HomeView({ onSelectTool, onSelectTab }) {
       icon: BrainCircuit,
       color: 'from-amber-500/10 to-orange-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30',
       badge: 'للطلاب'
+    },
+    {
+      id: 'converter',
+      title: 'تحويل المستندات 🔄',
+      desc: 'Word ⇄ PDF ⇄ Excel تحويل فوري للتعديل والطباعة',
+      icon: ArrowLeftRight,
+      color: 'from-blue-600/10 to-purple-600/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 dark:border-indigo-500/30',
+      badge: 'جديد ومهم'
     }
   ];
 

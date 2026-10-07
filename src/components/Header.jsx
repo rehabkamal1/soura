@@ -80,6 +80,7 @@ function getViewTitle(view) {
     case 'clean-sheet': return 'تنظيف وتصفية الورقة';
     case 'excel': return 'استخراج جدول كشف';
     case 'solver': return 'حل الأسئلة والمسائل';
+    case 'converter': return 'محوّل المستندات الشامل';
     case 'documents': return 'مستنداتي المحفوظة';
     case 'settings': return 'الإعدادات';
     default: return 'Soura';
@@ -94,6 +95,7 @@ function getViewSubtitle(view) {
     case 'clean-sheet': return 'إزالة الظلال وتبييض الورقة';
     case 'excel': return 'تحويل الصور لجداول إكسيل';
     case 'solver': return 'تحليل الأسئلة والخطوات';
+    case 'converter': return 'تحويل ذكي مع فحص الجودة والمطابقة المسبقة';
     case 'documents': return 'ملفاتك الجاهزة للتحميل';
     case 'settings': return 'تفضيلات التطبيق والمظهر';
     default: return '';

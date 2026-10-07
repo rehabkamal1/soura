@@ -1,5 +1,5 @@
 // Soura PWA Service Worker with Instant Auto-Update & Offline Capabilities
-const CACHE_NAME = 'soura-cache-v1.0.2';
+const CACHE_NAME = 'soura-cache-v3.1.0-scanned-engine';
 
 const STATIC_ASSETS = [
   '/',
