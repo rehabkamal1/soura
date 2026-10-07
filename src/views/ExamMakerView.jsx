@@ -1006,9 +1006,6 @@ export function ExamMakerView({ onOpenSettings }) {
           </div>
         )}
       </div>
-
-      {/* AdSense Banner */}
-      <AdBanner />
     </div>
   );
 }
