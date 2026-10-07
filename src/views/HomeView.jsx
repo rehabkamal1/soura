@@ -4,6 +4,7 @@ import {
   Table, UploadCloud, Clock, Eye, Download, CheckCircle, 
   ArrowLeft, BrainCircuit, Users
 } from 'lucide-react';
+import { AdBanner } from '../components/AdBanner';
 
 export function HomeView({ onSelectTool, onSelectTab }) {
   const tools = [
@@ -174,6 +175,9 @@ export function HomeView({ onSelectTool, onSelectTab }) {
           </a>
         </div>
       </div>
+
+      {/* AdSense Banner */}
+      <AdBanner />
 
       {/* Kotob Sync Highlight */}
       <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 transition-colors">
