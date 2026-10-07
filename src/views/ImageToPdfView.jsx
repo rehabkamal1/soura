@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Upload, RotateCw, Trash2, ArrowRight, ArrowLeft, Download, Sliders, CheckCircle, Images, Check } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
+import { AdBanner } from '../components/AdBanner';
 
 export function ImageToPdfView() {
+  const { triggerExportWithAd } = useExportAd();
   const [images, setImages] = useState([]);
   const [filter, setFilter] = useState('original');
   const [margin, setMargin] = useState('small');
@@ -134,8 +137,12 @@ export function ImageToPdfView() {
 
       const docName = `ملزمة_Soura_${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }).replace(/[:\s]/g, '_')}.pdf`;
       
-      // Save locally to user downloads
-      pdf.save(docName);
+      // Save locally to user downloads via Export Ad Modal
+      triggerExportWithAd({
+        title: 'تصدير وتحميل ملف PDF 📄',
+        fileName: docName,
+        onDownload: () => pdf.save(docName)
+      });
 
       // Save to "مستنداتي" storage persistently
       try {
@@ -331,6 +338,12 @@ export function ImageToPdfView() {
               </select>
             </div>
           </div>
+
+          {isProcessing && (
+            <div className="p-2 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+              <AdBanner label="إعلان ممول — جاري معالجة صفحات الـ PDF" />
+            </div>
+          )}
 
           <button
             onClick={generatePDF}

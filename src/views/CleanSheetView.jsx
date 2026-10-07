@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Upload, Download, RefreshCw, Sliders, CheckCircle2 } from 'lucide-react';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
 
 export function CleanSheetView() {
+  const { triggerExportWithAd } = useExportAd();
   const [imageSrc, setImageSrc] = useState(null);
   const [threshold, setThreshold] = useState(135);
   const [contrast, setContrast] = useState(130);
@@ -65,19 +67,25 @@ export function CleanSheetView() {
       dataUrl: dataUrl
     });
 
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    triggerExportWithAd({
+      title: 'تصدير وتحميل الورقة المبيضة 🧼',
+      fileName,
+      onDownload: () => {
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
 
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      try {
-        document.body.removeChild(a);
-      } catch (e) {}
-    }, 500);
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try {
+            document.body.removeChild(a);
+          } catch (e) {}
+        }, 500);
+      }
+    });
   };
 
   return (

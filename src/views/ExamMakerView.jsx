@@ -7,6 +7,7 @@ import {
 import { convertToExam, getApiKey, cleanExamContent } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
 import { AdBanner } from '../components/AdBanner';
+import { useExportAd } from '../context/ExportAdContext';
 
 const POPULAR_GRADES = [
   'الصف الرابع الابتدائي',
@@ -179,6 +180,7 @@ D) Writing:
 };
 
 export function ExamMakerView({ onOpenSettings }) {
+  const { triggerExportWithAd } = useExportAd();
   const [image, setImage] = useState(null);
   const [subject, setSubject] = useState('اللغة العربية');
   const [customSubject, setCustomSubject] = useState('');
@@ -615,17 +617,24 @@ export function ExamMakerView({ onOpenSettings }) {
       </html>
     `;
 
-    const blob = new Blob(['\ufeff', docHtml], {
-      type: 'application/msword;charset=utf-8'
+    const fileName = `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`;
+    triggerExportWithAd({
+      title: 'تصدير وتحميل ورقة الامتحان (Word) 📝',
+      fileName,
+      onDownload: () => {
+        const blob = new Blob(['\ufeff', docHtml], {
+          type: 'application/msword;charset=utf-8'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
   const loadSample = (sampleKey) => {
@@ -893,23 +902,30 @@ export function ExamMakerView({ onOpenSettings }) {
 
       {/* Action Button */}
       {image && (
-        <button
-          onClick={handleGenerateExam}
-          disabled={loading}
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-purple-500/25 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-        >
-          {loading ? (
-            <>
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>جارٍ صياغة امتحان {activeSubject} لـ {activeGrade}...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4" />
-              <span>توليد ورقة امتحان {activeSubject} الرسمية 🔥</span>
-            </>
+        <>
+          {loading && (
+            <div className="p-2 rounded-2xl bg-purple-500/5 border border-purple-500/20">
+              <AdBanner label="إعلان ممول — جاري صياغة وتنظيم ورقة الامتحان الرسمية" />
+            </div>
           )}
-        </button>
+          <button
+            onClick={handleGenerateExam}
+            disabled={loading}
+            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-purple-500/25 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>جارٍ صياغة امتحان {activeSubject} لـ {activeGrade}...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>توليد ورقة امتحان {activeSubject} الرسمية 🔥</span>
+              </>
+            )}
+          </button>
+        </>
       )}
 
       {error && (

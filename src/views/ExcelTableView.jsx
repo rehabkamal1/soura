@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Table, Upload, Download, Sparkles, RefreshCw, Key, AlertCircle, FileSpreadsheet, CheckCircle2 } from 'lucide-react';
 import { extractTableToCsv, getApiKey } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
+import { AdBanner } from '../components/AdBanner';
 
 export function ExcelTableView({ onOpenSettings }) {
+  const { triggerExportWithAd } = useExportAd();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [csvData, setCsvData] = useState('');
@@ -74,25 +77,31 @@ export function ExcelTableView({ onOpenSettings }) {
       content: csvData
     });
 
-    // Download via Data URI with UTF-8 BOM to avoid insecure blob connection warnings
-    const blob = new Blob(['\ufeff', csvData], { type: 'text/csv;charset=utf-8' });
-    const reader = new FileReader();
-    reader.onload = () => {
-      const a = document.createElement('a');
-      a.href = reader.result;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        try {
-          document.body.removeChild(a);
-        } catch (e) {}
-      }, 500);
-    };
-    reader.readAsDataURL(blob);
+    triggerExportWithAd({
+      title: 'تصدير وتحميل جدول Excel (CSV) 📊',
+      fileName,
+      onDownload: () => {
+        // Download via Data URI with UTF-8 BOM to avoid insecure blob connection warnings
+        const blob = new Blob(['\ufeff', csvData], { type: 'text/csv;charset=utf-8' });
+        const reader = new FileReader();
+        reader.onload = () => {
+          const a = document.createElement('a');
+          a.href = reader.result;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            try {
+              document.body.removeChild(a);
+            } catch (e) {}
+          }, 500);
+        };
+        reader.readAsDataURL(blob);
 
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      }
+    });
   };
 
   const loadSample = () => {
@@ -142,23 +151,30 @@ export function ExcelTableView({ onOpenSettings }) {
       </div>
 
       {image && (
-        <button
-          onClick={handleProcessTable}
-          disabled={loading}
-          className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-        >
-          {loading ? (
-            <>
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>جارٍ استخراج وتنسيق خلايا الجدول...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4" />
-              <span>استخراج الجدول كملف Excel 📊</span>
-            </>
+        <>
+          {loading && (
+            <div className="p-2 rounded-2xl bg-green-500/5 border border-green-500/20">
+              <AdBanner label="إعلان ممول — جاري معالجة وتحويل خلايا الجدول" />
+            </div>
           )}
-        </button>
+          <button
+            onClick={handleProcessTable}
+            disabled={loading}
+            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>جارٍ استخراج وتنسيق خلايا الجدول...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>استخراج الجدول كملف Excel 📊</span>
+              </>
+            )}
+          </button>
+        </>
       )}
 
       {error && (

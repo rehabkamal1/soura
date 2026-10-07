@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Upload, Type, Copy, Download, Check, Sparkles, AlertCircle, FileText, RefreshCw, Key } from 'lucide-react';
 import { extractArabicOcr, getApiKey } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
+import { AdBanner } from '../components/AdBanner';
 
 export function OcrView({ onOpenSettings }) {
+  const { triggerExportWithAd } = useExportAd();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [extractedText, setExtractedText] = useState('');
@@ -62,42 +65,56 @@ export function OcrView({ onOpenSettings }) {
 
   const handleDownloadTxt = () => {
     if (!extractedText) return;
-    const blob = new Blob([extractedText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Soura_Arabic_OCR.txt';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    const fileName = 'Soura_Arabic_OCR.txt';
+    triggerExportWithAd({
+      title: 'تصدير النص المستخرج (TXT) 📄',
+      fileName,
+      onDownload: () => {
+        const blob = new Blob([extractedText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    });
   };
 
   const handleDownloadDoc = () => {
     if (!extractedText) return;
-    const htmlContent = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head>
-        <meta charset="utf-8">
-        <title>Soura Document</title>
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6; }
-        </style>
-      </head>
-      <body>
-        <div dir="rtl">
-          ${extractedText.replace(/\n/g, '<br/>')}
-        </div>
-      </body>
-      </html>
-    `;
-    const blob = new Blob(['\ufeff', htmlContent], {
-      type: 'application/msword'
+    const fileName = 'Soura_Document.doc';
+    triggerExportWithAd({
+      title: 'تصدير وتحميل ملف Word (.doc) 📝',
+      fileName,
+      onDownload: () => {
+        const htmlContent = `
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+          <head>
+            <meta charset="utf-8">
+            <title>Soura Document</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6; }
+            </style>
+          </head>
+          <body>
+            <div dir="rtl">
+              ${extractedText.replace(/\n/g, '<br/>')}
+            </div>
+          </body>
+          </html>
+        `;
+        const blob = new Blob(['\ufeff', htmlContent], {
+          type: 'application/msword'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Soura_Document.doc';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
   const loadSample = () => {
@@ -162,23 +179,30 @@ export function OcrView({ onOpenSettings }) {
 
       {/* Process Button */}
       {image && (
-        <button
-          onClick={handleProcessOcr}
-          disabled={loading}
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-teal-600 text-white font-bold text-sm shadow-md shadow-blue-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50"
-        >
-          {loading ? (
-            <>
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>جارٍ قراءة النص العربي بالذكاء الاصطناعي...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4" />
-              <span>استخراج النص العربي الآن</span>
-            </>
+        <>
+          {loading && (
+            <div className="p-2 rounded-2xl bg-blue-500/5 border border-blue-500/20">
+              <AdBanner label="إعلان ممول — جاري معالجة واستخراج النص العربي" />
+            </div>
           )}
-        </button>
+          <button
+            onClick={handleProcessOcr}
+            disabled={loading}
+            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-teal-600 text-white font-bold text-sm shadow-md shadow-blue-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>جارٍ قراءة النص العربي بالذكاء الاصطناعي...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>استخراج النص العربي الآن</span>
+              </>
+            )}
+          </button>
+        </>
       )}
 
       {error && (
