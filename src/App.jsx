@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { InstallModal } from './components/InstallModal';
+import { AdBanner } from './components/AdBanner';
+import { ExportAdProvider } from './context/ExportAdContext';
 
 import { HomeView } from './views/HomeView';
 import { ImageToPdfView } from './views/ImageToPdfView';
@@ -109,59 +111,66 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-200 ${darkMode ? 'dark' : ''}`}>
-      {/* Mobile-first centered container */}
-      <div className="w-full max-w-md mx-auto min-h-screen flex flex-col bg-white dark:bg-slate-900 shadow-2xl relative border-x border-slate-200 dark:border-slate-800/80 transition-colors duration-200">
-        
-        {/* Header */}
-        <Header
-          currentView={currentView}
-          onBack={handleBackToHome}
-          onOpenInstall={() => setIsInstallOpen(true)}
-          darkMode={darkMode}
-          toggleDarkMode={toggleDarkMode}
-          isInstalled={isInstalled}
-        />
-
-        {/* Floating Instant Update Toast Notification */}
-        {updateToast && (
-          <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-3 rounded-2xl shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2 text-xs font-bold border border-white/20 animate-bounce text-center">
-            <span>{updateToast}</span>
+    <ExportAdProvider>
+      <div className={`min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-emerald-500 selection:text-white transition-colors duration-200 ${darkMode ? 'dark' : ''}`}>
+        {/* Mobile-first centered container */}
+        <div className="w-full max-w-md mx-auto min-h-screen flex flex-col bg-white dark:bg-slate-900 shadow-2xl relative border-x border-slate-200 dark:border-slate-800/80 transition-colors duration-200">
+          
+          {/* Top Ultra-slim 50px Ad Banner */}
+          <div className="w-full bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800">
+            <AdBanner label="إعلان" />
           </div>
-        )}
 
-        {/* Main Content Area */}
-        <main className="flex-1 pb-24 overflow-y-auto px-4 py-4 space-y-4">
-          {currentView === 'home' && (
-            <HomeView onSelectTool={handleSelectTool} onSelectTab={handleTabChange} darkMode={darkMode} />
+          {/* Header */}
+          <Header
+            currentView={currentView}
+            onBack={handleBackToHome}
+            onOpenInstall={() => setIsInstallOpen(true)}
+            darkMode={darkMode}
+            toggleDarkMode={toggleDarkMode}
+            isInstalled={isInstalled}
+          />
+
+          {/* Floating Instant Update Toast Notification */}
+          {updateToast && (
+            <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-3 rounded-2xl shadow-xl shadow-emerald-500/25 flex items-center justify-center gap-2 text-xs font-bold border border-white/20 animate-bounce text-center">
+              <span>{updateToast}</span>
+            </div>
           )}
 
-          {currentView === 'image-to-pdf' && <ImageToPdfView darkMode={darkMode} />}
-          {currentView === 'ocr' && <OcrView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
-          {currentView === 'exam-maker' && <ExamMakerView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
-          {currentView === 'clean-sheet' && <CleanSheetView darkMode={darkMode} />}
-          {currentView === 'excel' && <ExcelTableView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
-          {currentView === 'solver' && <SolverView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
-          {currentView === 'documents' && <DocumentsView darkMode={darkMode} />}
-          {currentView === 'settings' && (
-            <SettingsView darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-          )}
-        </main>
+          {/* Main Content Area */}
+          <main className="flex-1 pb-24 overflow-y-auto px-4 py-4 space-y-4">
+            {currentView === 'home' && (
+              <HomeView onSelectTool={handleSelectTool} onSelectTab={handleTabChange} darkMode={darkMode} />
+            )}
 
-        {/* Bottom Navigation */}
-        <BottomNav activeTab={activeTab} onTabChange={handleTabChange} darkMode={darkMode} />
+            {currentView === 'image-to-pdf' && <ImageToPdfView darkMode={darkMode} />}
+            {currentView === 'ocr' && <OcrView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
+            {currentView === 'exam-maker' && <ExamMakerView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
+            {currentView === 'clean-sheet' && <CleanSheetView darkMode={darkMode} />}
+            {currentView === 'excel' && <ExcelTableView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
+            {currentView === 'solver' && <SolverView onOpenSettings={() => setCurrentView('settings')} darkMode={darkMode} />}
+            {currentView === 'documents' && <DocumentsView darkMode={darkMode} />}
+            {currentView === 'settings' && (
+              <SettingsView darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            )}
+          </main>
 
-        {/* PWA Bottom Sheet Install Modal */}
-        <InstallModal
-          isOpen={isInstallOpen}
-          onClose={() => setIsInstallOpen(false)}
-          deferredPrompt={deferredPrompt}
-          onInstalled={() => {
-            setIsInstalled(true);
-            showToast('🎉 تم تثبيت تطبيق صورة وتحديثه لآخر إصدار فورياً!');
-          }}
-        />
+          {/* Bottom Navigation */}
+          <BottomNav activeTab={activeTab} onTabChange={handleTabChange} darkMode={darkMode} />
+
+          {/* PWA Bottom Sheet Install Modal */}
+          <InstallModal
+            isOpen={isInstallOpen}
+            onClose={() => setIsInstallOpen(false)}
+            deferredPrompt={deferredPrompt}
+            onInstalled={() => {
+              setIsInstalled(true);
+              showToast('🎉 تم تثبيت تطبيق صورة وتحديثه لآخر إصدار فورياً!');
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </ExportAdProvider>
   );
 }

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FolderClock, Download, Trash2, Sparkles, FolderOpen, FileText, CheckCircle2 } from 'lucide-react';
 import { getUserDocuments, deleteUserDocument, clearUserDocuments, triggerDownload } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
 
 export function DocumentsView({ darkMode }) {
+  const { triggerExportWithAd } = useExportAd();
   const [documents, setDocuments] = useState([]);
   const [showDemoSamples, setShowDemoSamples] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
@@ -70,14 +72,20 @@ export function DocumentsView({ darkMode }) {
   };
 
   const handleDownloadDoc = async (doc) => {
-    setDownloadingId(doc.id);
-    try {
-      await triggerDownload(doc);
-    } catch (e) {
-      console.error('Download error:', e);
-    } finally {
-      setTimeout(() => setDownloadingId(null), 1000);
-    }
+    triggerExportWithAd({
+      title: `تنزيل ${doc.name}`,
+      fileName: doc.name,
+      onDownload: async () => {
+        setDownloadingId(doc.id);
+        try {
+          await triggerDownload(doc);
+        } catch (e) {
+          console.error('Download error:', e);
+        } finally {
+          setTimeout(() => setDownloadingId(null), 1000);
+        }
+      }
+    });
   };
 
   const displayList = documents.length > 0 ? documents : (showDemoSamples ? demoSamples : []);

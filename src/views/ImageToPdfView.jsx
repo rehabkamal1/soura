@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Upload, RotateCw, Trash2, ArrowRight, ArrowLeft, Download, Sliders, CheckCircle, Images, Check } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
 
 export function ImageToPdfView() {
+  const { triggerExportWithAd } = useExportAd();
   const [images, setImages] = useState([]);
   const [filter, setFilter] = useState('original');
   const [margin, setMargin] = useState('small');
@@ -134,8 +136,14 @@ export function ImageToPdfView() {
 
       const docName = `ملزمة_Soura_${new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }).replace(/[:\s]/g, '_')}.pdf`;
       
-      // Save locally to user downloads
-      pdf.save(docName);
+      // Trigger export modal with AdSense
+      triggerExportWithAd({
+        title: 'تصدير وتحميل ملف PDF',
+        fileName: docName,
+        onDownload: () => {
+          pdf.save(docName);
+        }
+      });
 
       // Save to "مستنداتي" storage persistently
       try {

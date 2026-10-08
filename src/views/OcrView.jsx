@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Upload, Type, Copy, Download, Check, Sparkles, AlertCircle, FileText, RefreshCw, Key } from 'lucide-react';
 import { extractArabicOcr, getApiKey } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
 
 export function OcrView({ onOpenSettings }) {
+  const { triggerExportWithAd } = useExportAd();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [extractedText, setExtractedText] = useState('');
@@ -73,31 +75,37 @@ export function OcrView({ onOpenSettings }) {
 
   const handleDownloadDoc = () => {
     if (!extractedText) return;
-    const htmlContent = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head>
-        <meta charset="utf-8">
-        <title>Soura Document</title>
-        <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6; }
-        </style>
-      </head>
-      <body>
-        <div dir="rtl">
-          ${extractedText.replace(/\n/g, '<br/>')}
-        </div>
-      </body>
-      </html>
-    `;
-    const blob = new Blob(['\ufeff', htmlContent], {
-      type: 'application/msword'
+    triggerExportWithAd({
+      title: 'تنزيل مستند Word',
+      fileName: 'Soura_Document.doc',
+      onDownload: () => {
+        const htmlContent = `
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+          <head>
+            <meta charset="utf-8">
+            <title>Soura Document</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6; }
+            </style>
+          </head>
+          <body>
+            <div dir="rtl">
+              ${extractedText.replace(/\n/g, '<br/>')}
+            </div>
+          </body>
+          </html>
+        `;
+        const blob = new Blob(['\ufeff', htmlContent], {
+          type: 'application/msword'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Soura_Document.doc';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Soura_Document.doc';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
   const loadSample = () => {

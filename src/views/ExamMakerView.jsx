@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { HelpCircle, Upload, Printer, FileDown, Sparkles, RefreshCw, AlertCircle, Check, BookOpen, Layers } from 'lucide-react';
 import { convertToExam, getApiKey, cleanExamContent } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
 
 const POPULAR_GRADES = [
   'الصف الرابع الابتدائي',
@@ -135,6 +136,7 @@ const SAMPLE_EXAMS = {
 };
 
 export function ExamMakerView({ onOpenSettings }) {
+  const { triggerExportWithAd } = useExportAd();
   const [image, setImage] = useState(null);
   const [subject, setSubject] = useState('اللغة العربية');
   const [customSubject, setCustomSubject] = useState('');
@@ -326,115 +328,122 @@ export function ExamMakerView({ onOpenSettings }) {
   const handleDownloadWord = () => {
     if (!examContent) return;
     const finalContent = cleanExamContent(examContent);
+    const fileName = `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`;
 
-    saveUserDocument({
-      name: `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`,
-      type: 'Exam',
-      size: `${Math.max(1, Math.round(finalContent.length / 1024))} KB`,
-      pages: `اختبار ${activeSubject} - ${activeGrade}`,
-      content: finalContent
+    triggerExportWithAd({
+      title: 'تنزيل ورقة الامتحان (Word)',
+      fileName: fileName,
+      onDownload: () => {
+        saveUserDocument({
+          name: fileName,
+          type: 'Exam',
+          size: `${Math.max(1, Math.round(finalContent.length / 1024))} KB`,
+          pages: `اختبار ${activeSubject} - ${activeGrade}`,
+          content: finalContent
+        });
+
+        const docHtml = `
+          <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+          <head>
+            <meta charset="utf-8">
+            <title>امتحان ${activeSubject} - ${activeGrade}</title>
+            <!--[if gte mso 9]>
+            <xml>
+              <w:WordDocument>
+                <w:View>Print</w:View>
+                <w:Zoom>100</w:Zoom>
+                <w:DoNotOptimizeForBrowser/>
+              </w:WordDocument>
+            </xml>
+            <![endif]-->
+            <style>
+              body { 
+                font-family: 'Cairo', 'Traditional Arabic', 'Segoe UI', Tahoma, sans-serif; 
+                direction: rtl; 
+                text-align: right; 
+                line-height: 1.8; 
+                font-size: 14pt;
+              }
+              table.header-box { 
+                width: 100%; 
+                border: 2px solid #000; 
+                border-collapse: collapse; 
+                margin-bottom: 25px; 
+              }
+              table.header-box td { 
+                padding: 8px 12px; 
+                vertical-align: middle; 
+              }
+              .title { 
+                text-align: center; 
+                font-size: 16pt; 
+                font-weight: bold; 
+              }
+              .content { 
+                font-size: 13.5pt; 
+                line-height: 2.0; 
+                white-space: pre-wrap; 
+              }
+              .footer { 
+                text-align: center; 
+                margin-top: 35px; 
+                border-top: 1px solid #000; 
+                padding-top: 10px; 
+                font-weight: bold; 
+                font-size: 12pt;
+              }
+            </style>
+          </head>
+          <body lang="AR-EG" dir="rtl">
+            <table class="header-box" border="1" dir="rtl">
+              <tr>
+                <td width="33%" align="right">
+                  <b>جمهورية مصر العربية</b><br>
+                  <b>وزارة التربية والتعليم</b>
+                </td>
+                <td width="34%" class="title">
+                  اختبار مادة: ${activeSubject}<br>
+                  <span style="font-size: 13pt; font-weight: normal;">${activeGrade}</span>
+                </td>
+                <td width="33%" align="left">
+                  <b>الزمن: ${examTime}</b><br>
+                  <b>الدرجة العظمى: [ ٤٠ ]</b>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" align="right">
+                  اسم الطالب: ....................................................
+                </td>
+                <td align="left">
+                  رقم الجلوس: ............... الفصل: ........
+                </td>
+              </tr>
+            </table>
+
+            <div class="content" dir="rtl">
+              ${finalContent.replace(/\n/g, '<br/>')}
+            </div>
+
+            <div class="footer">
+              «مع أطيب التمنيات بالنجاح والتفوق»
+            </div>
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob(['\ufeff', docHtml], {
+          type: 'application/msword;charset=utf-8'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
     });
-
-    const docHtml = `
-      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-      <head>
-        <meta charset="utf-8">
-        <title>امتحان ${activeSubject} - ${activeGrade}</title>
-        <!--[if gte mso 9]>
-        <xml>
-          <w:WordDocument>
-            <w:View>Print</w:View>
-            <w:Zoom>100</w:Zoom>
-            <w:DoNotOptimizeForBrowser/>
-          </w:WordDocument>
-        </xml>
-        <![endif]-->
-        <style>
-          body { 
-            font-family: 'Cairo', 'Traditional Arabic', 'Segoe UI', Tahoma, sans-serif; 
-            direction: rtl; 
-            text-align: right; 
-            line-height: 1.8; 
-            font-size: 14pt;
-          }
-          table.header-box { 
-            width: 100%; 
-            border: 2px solid #000; 
-            border-collapse: collapse; 
-            margin-bottom: 25px; 
-          }
-          table.header-box td { 
-            padding: 8px 12px; 
-            vertical-align: middle; 
-          }
-          .title { 
-            text-align: center; 
-            font-size: 16pt; 
-            font-weight: bold; 
-          }
-          .content { 
-            font-size: 13.5pt; 
-            line-height: 2.0; 
-            white-space: pre-wrap; 
-          }
-          .footer { 
-            text-align: center; 
-            margin-top: 35px; 
-            border-top: 1px solid #000; 
-            padding-top: 10px; 
-            font-weight: bold; 
-            font-size: 12pt;
-          }
-        </style>
-      </head>
-      <body lang="AR-EG" dir="rtl">
-        <table class="header-box" border="1" dir="rtl">
-          <tr>
-            <td width="33%" align="right">
-              <b>جمهورية مصر العربية</b><br>
-              <b>وزارة التربية والتعليم</b>
-            </td>
-            <td width="34%" class="title">
-              اختبار مادة: ${activeSubject}<br>
-              <span style="font-size: 13pt; font-weight: normal;">${activeGrade}</span>
-            </td>
-            <td width="33%" align="left">
-              <b>الزمن: ${examTime}</b><br>
-              <b>الدرجة العظمى: [ ٤٠ ]</b>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="2" align="right">
-              اسم الطالب: ....................................................
-            </td>
-            <td align="left">
-              رقم الجلوس: ............... الفصل: ........
-            </td>
-          </tr>
-        </table>
-
-        <div class="content" dir="rtl">
-          ${finalContent.replace(/\n/g, '<br/>')}
-        </div>
-
-        <div class="footer">
-          «مع أطيب التمنيات بالنجاح والتفوق»
-        </div>
-      </body>
-      </html>
-    `;
-
-    const blob = new Blob(['\ufeff', docHtml], {
-      type: 'application/msword;charset=utf-8'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `امتحان_${activeSubject}_${activeGrade.replace(/\s+/g, '_')}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
   const loadSample = (sampleKey) => {

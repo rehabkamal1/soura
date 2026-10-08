@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Table, Upload, Download, Sparkles, RefreshCw, Key, AlertCircle, FileSpreadsheet, CheckCircle2 } from 'lucide-react';
 import { extractTableToCsv, getApiKey } from '../services/geminiService';
 import { saveUserDocument } from '../services/storageService';
+import { useExportAd } from '../context/ExportAdContext';
 
 export function ExcelTableView({ onOpenSettings }) {
+  const { triggerExportWithAd } = useExportAd();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [csvData, setCsvData] = useState('');
@@ -64,35 +66,41 @@ export function ExcelTableView({ onOpenSettings }) {
     if (!csvData) return;
     const fileName = `كشف_جدول_${Date.now()}.csv`;
 
-    // Save/update to documents
-    const rows = parseCsvRows().length;
-    saveUserDocument({
-      name: fileName,
-      type: 'Excel',
-      size: `${Math.max(1, Math.round(csvData.length / 1024))} KB`,
-      pages: `${rows} صفوف`,
-      content: csvData
+    triggerExportWithAd({
+      title: 'تنزيل جدول Excel (CSV)',
+      fileName: fileName,
+      onDownload: () => {
+        // Save/update to documents
+        const rows = parseCsvRows().length;
+        saveUserDocument({
+          name: fileName,
+          type: 'Excel',
+          size: `${Math.max(1, Math.round(csvData.length / 1024))} KB`,
+          pages: `${rows} صفوف`,
+          content: csvData
+        });
+
+        // Download via Data URI with UTF-8 BOM to avoid insecure blob connection warnings
+        const blob = new Blob(['\ufeff', csvData], { type: 'text/csv;charset=utf-8' });
+        const reader = new FileReader();
+        reader.onload = () => {
+          const a = document.createElement('a');
+          a.href = reader.result;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            try {
+              document.body.removeChild(a);
+            } catch (e) {}
+          }, 500);
+        };
+        reader.readAsDataURL(blob);
+
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      }
     });
-
-    // Download via Data URI with UTF-8 BOM to avoid insecure blob connection warnings
-    const blob = new Blob(['\ufeff', csvData], { type: 'text/csv;charset=utf-8' });
-    const reader = new FileReader();
-    reader.onload = () => {
-      const a = document.createElement('a');
-      a.href = reader.result;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        try {
-          document.body.removeChild(a);
-        } catch (e) {}
-      }, 500);
-    };
-    reader.readAsDataURL(blob);
-
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
   };
 
   const loadSample = () => {

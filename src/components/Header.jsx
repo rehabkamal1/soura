@@ -27,11 +27,6 @@ export function Header({ currentView, onBack, onOpenInstall, darkMode, toggleDar
               <h1 className="font-black text-lg text-slate-900 dark:text-white tracking-wide">
                 {isHome ? 'Soura' : getViewTitle(currentView)}
               </h1>
-              {isHome && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                  AI عربي 🇪🇬
-                </span>
-              )}
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
               {isHome ? 'حوّل صورك لمستندات ذكية' : getViewSubtitle(currentView)}
